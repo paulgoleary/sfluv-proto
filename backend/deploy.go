@@ -1,10 +1,10 @@
-package sfluv_proto
+package local_luv_proto
 
 import (
 	"crypto/ecdsa"
 	"encoding/hex"
 	"encoding/json"
-	"github.com/paulgoleary/sfluv-proto/crypto"
+	"github.com/paulgoleary/local-luv-proto/crypto"
 	"github.com/umbracle/ethgo"
 	"github.com/umbracle/ethgo/abi"
 	"github.com/umbracle/ethgo/compiler"

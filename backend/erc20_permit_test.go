@@ -1,7 +1,7 @@
-package sfluv_proto
+package local_luv_proto
 
 import (
-	"github.com/paulgoleary/sfluv-proto/crypto"
+	"github.com/paulgoleary/local-luv-proto/crypto"
 	"github.com/stretchr/testify/require"
 	"github.com/umbracle/ethgo"
 	"github.com/umbracle/ethgo/jsonrpc"

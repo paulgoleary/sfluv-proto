@@ -1,4 +1,4 @@
-module github.com/paulgoleary/sfluv-proto
+module github.com/paulgoleary/local-luv-proto
 
 go 1.20
 
