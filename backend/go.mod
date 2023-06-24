@@ -4,7 +4,7 @@ go 1.20
 
 require (
 	github.com/btcsuite/btcd v0.22.1
-	github.com/stretchr/testify v1.4.0
+	github.com/stretchr/testify v1.8.4
 	github.com/umbracle/ethgo v0.1.4-0.20230126112511-6a4d02533af6
 )
 
@@ -36,6 +36,7 @@ require (
 	github.com/pkg/errors v0.8.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/sirupsen/logrus v1.4.2 // indirect
+	github.com/stretchr/objx v0.5.0 // indirect
 	github.com/tyler-smith/go-bip39 v1.1.0 // indirect
 	github.com/umbracle/fastrlp v0.0.0-20220527094140-59d5dd30e722 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
@@ -50,4 +51,5 @@ require (
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/protobuf v1.28.0 // indirect
 	gopkg.in/yaml.v2 v2.2.2 // indirect
+	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
