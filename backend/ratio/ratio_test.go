@@ -14,8 +14,6 @@ import (
 	"testing"
 )
 
-const sandboxUrl = "https://api.sandbox.ratio.me"
-
 //	export const hashPersonalMessage = function (message: Buffer): Buffer {
 //	 assertIsBuffer(message)
 //	 const prefix = Buffer.from(`\u0019Ethereum Signed Message:\n${message.length}`, 'utf-8')

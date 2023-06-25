@@ -5,6 +5,7 @@ import WalletDetail from "./components/WalletDetail"
 import DisconnectButton from "./components/DisconnectButton"
 import ShowUIButton from "./components/ShowUIButton"
 import SignMessage from "./components/SignMessage"
+import BuyButton from "./components/BuyButton";
 function App() {
   // Use the UserContext to get the current logged-in user
   const { user } = useUser()
