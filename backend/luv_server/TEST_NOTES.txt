@@ -1,0 +1,7 @@
+curl --location -g --request POST 'http://localhost:8080/ratio/client/sessions' \
+--header 'Content-Type: application/json' \
+--header 'Accept: application/json' \
+--data-raw '{
+    "walletAddress": "0x33507898686B205267c66BcD41a3F2d9B15d1204",
+    "walletNetwork": "POLYGON"
+}'

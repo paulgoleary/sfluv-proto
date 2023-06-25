@@ -20,7 +20,7 @@ type ratioClient struct {
 	to time.Duration
 }
 
-func getDefaultClient() *ratioClient {
+func getDefaultClient(maybeJwt string) *ratioClient {
 
 	c := &ratioClient{}
 
@@ -29,6 +29,10 @@ func getDefaultClient() *ratioClient {
 
 	cfg := swagger.NewConfiguration()
 	cfg.BasePath = sandboxUrl
+
+	if maybeJwt != "" {
+		cfg.DefaultHeader["Authorization"] = "Bearer " + maybeJwt
+	}
 
 	c.c = swagger.NewAPIClient(cfg)
 

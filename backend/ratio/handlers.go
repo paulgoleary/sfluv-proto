@@ -15,7 +15,7 @@ func HandleNewSession(c *gin.Context) {
 		return
 	}
 
-	client := getDefaultClient()
+	client := getDefaultClient("")
 	if challenge, err := client.authWalletStart(&b); err != nil {
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
