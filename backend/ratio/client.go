@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"github.com/apex/log"
 	swagger "github.com/paulgoleary/local-luv-proto/ratio/go-client-generated"
-	"net"
+	"github.com/paulgoleary/local-luv-proto/util"
 	"os"
 	"time"
 )
@@ -22,19 +22,6 @@ type ratioClient struct {
 	to time.Duration
 }
 
-// Get preferred outbound ip of this machine
-func getOutboundIP() net.IP {
-	conn, err := net.Dial("udp", "8.8.8.8:80")
-	if err != nil {
-		log.Fatal(err.Error())
-	}
-	defer conn.Close()
-
-	localAddr := conn.LocalAddr().(*net.UDPAddr)
-
-	return localAddr.IP
-}
-
 func getDefaultClient(maybeJwt string) *ratioClient {
 
 	c := &ratioClient{}
@@ -45,7 +32,7 @@ func getDefaultClient(maybeJwt string) *ratioClient {
 	cfg := swagger.NewConfiguration()
 	cfg.BasePath = sandboxUrl
 
-	localIp := getOutboundIP()
+	localIp := util.GetOutboundIP()
 	fingerPrintJson := fmt.Sprintf(`{"ip":"%v","userAgent":"%v"}`, localIp.String(), cfg.UserAgent)
 	fingerPrintEnc := base64.StdEncoding.EncodeToString([]byte(fingerPrintJson))
 	cfg.DefaultHeader["ratio-device-fingerprint"] = fingerPrintEnc

@@ -1,4 +1,4 @@
-curl --location -g --request POST 'http://localhost:8080/ratio/client/sessions' \
+curl --location -g --request POST 'http://192.168.4.176:8080/ratio/client/sessions' \
 --header 'Content-Type: application/json' \
 --header 'Accept: application/json' \
 --data-raw '{
