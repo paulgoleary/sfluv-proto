@@ -42,7 +42,7 @@ const ShowUIButton = () => {
   }
 
   // Render the button component if showButton is true, otherwise render nothing
-  return showButton ? <Button onClick={handleShowUI}>Show UI</Button> : null
+  return showButton ? <Button className="button" onClick={handleShowUI}>Show UI</Button> : null
 }
 
 export default ShowUIButton

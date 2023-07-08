@@ -21,7 +21,7 @@ const ConnectButton = () => {
   }
 
   // Render the button component with the click event handler
-  return <Button onClick={handleConnect}>Connect</Button>
+  return <div className="connect"><Button className="button" onClick={handleConnect}>Connect</Button></div>
 }
 
 export default ConnectButton
