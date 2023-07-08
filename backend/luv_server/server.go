@@ -1,7 +1,9 @@
 package main
 
 import (
+	"fmt"
 	"github.com/paulgoleary/local-luv-proto/ratio"
+	"github.com/paulgoleary/local-luv-proto/util"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -25,6 +27,8 @@ func setupRouter() *gin.Engine {
 
 func main() {
 	r := setupRouter()
+	localIp := util.GetOutboundIP()
+	println(fmt.Sprintf("server starting at local IP %v", localIp.String())) // TODO: logging...
 	// Listen and Server in 0.0.0.0:8080
 	r.Run(":8080")
 }
