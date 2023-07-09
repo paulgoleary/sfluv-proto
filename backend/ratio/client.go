@@ -77,8 +77,8 @@ func (c *ratioClient) authWalletSignature(ba *swagger.AuthenticateCryptoWalletRe
 		handleApiError("V1AuthCryptoWalletauthenticatePost", err)
 	} else {
 		jwt = authResp.SessionJwt
-		if authResp.User != nil {
-			maybeUserId = authResp.User.Id
+		if authResp.UserMask != nil {
+			maybeUserId = authResp.UserMask.Id
 		}
 	}
 	return

@@ -32,8 +32,16 @@ contract SFLUVv1Test is Test {
         uint checkBalance = mockCoin.balanceOf(payer);
         assertEq(checkBalance, 100 * oneEther);
 
+        assertTrue(testCoin.owner() == address(this));
+        assertFalse(testCoin.hasRole(testCoin.MINTER_ROLE(), testCoin.owner()));
+        testCoin.grantRole(testCoin.MINTER_ROLE(), testCoin.owner());
+        assertTrue(testCoin.hasRole(testCoin.MINTER_ROLE(), testCoin.owner()));
+
         vm.expectRevert("ERC20: insufficient allowance");
         testCoin.depositFor(payer, 100 * oneEther);
+
+        // allow the payer to wrap (mint) SFLUV
+        testCoin.grantRole(testCoin.MINTER_ROLE(), payer);
 
         vm.startPrank(payer);
         mockCoin.approve(address(testCoin), 100 * oneEther);
