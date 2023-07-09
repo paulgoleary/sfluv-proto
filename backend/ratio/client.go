@@ -48,14 +48,38 @@ func getDefaultClient(maybeJwt string) *ratioClient {
 	return c
 }
 
+func handleApiError(apiName string, err error) {
+	if swagErr, ok := err.(swagger.GenericSwaggerError); ok {
+		log.Info(fmt.Sprintf("%v failed with error %v, %v", apiName, err, string(swagErr.Body())))
+		println(string(swagErr.Body()))
+	} else {
+		log.Info(fmt.Sprintf("%v failed with error %v", apiName, err))
+	}
+}
+
 func (c *ratioClient) authWalletStart(b *swagger.AuthenticateCryptoWalletStartRequest) (challenge string, err error) {
 	ctx, cancel := context.WithTimeout(context.Background(), c.to)
 	defer cancel()
-	if resp, _, apiErr := c.c.AuthApi.V1AuthCryptoWalletstartPost(ctx, *b, c.ratioClientId, c.ratioClientSecret); apiErr != nil {
-		log.Error(fmt.Sprintf("V1AuthCryptoWalletstartPost failed with error %v", apiErr))
-		err = apiErr
+	var resp swagger.AuthenticateCryptoWalletStartResponse
+	if resp, _, err = c.c.AuthApi.V1AuthCryptoWalletstartPost(ctx, *b, c.ratioClientId, c.ratioClientSecret); err != nil {
+		handleApiError("V1AuthCryptoWalletstartPost", err)
 	} else {
 		challenge = resp.Challenge
+	}
+	return
+}
+
+func (c *ratioClient) authWalletSignature(ba *swagger.AuthenticateCryptoWalletRequest) (jwt, maybeUserId string, err error) {
+	ctx, cancel := context.WithTimeout(context.Background(), c.to)
+	defer cancel()
+	var authResp swagger.AuthResponse
+	if authResp, _, err = c.c.AuthApi.V1AuthCryptoWalletauthenticatePost(ctx, *ba, c.ratioClientId, c.ratioClientSecret); err != nil {
+		handleApiError("V1AuthCryptoWalletauthenticatePost", err)
+	} else {
+		jwt = authResp.SessionJwt
+		if authResp.User != nil {
+			maybeUserId = authResp.User.Id
+		}
 	}
 	return
 }
