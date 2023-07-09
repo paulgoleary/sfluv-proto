@@ -6,25 +6,28 @@ import DisconnectButton from "./components/DisconnectButton"
 import ShowUIButton from "./components/ShowUIButton"
 import SignMessage from "./components/SignMessage"
 import BuyButton from "./components/BuyButton";
+import Profile from "./Profile"
+import Navbar from "./Navbar"
+import Home from "./Home"
+import About from "./About"
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+
+
 function App() {
-  // Use the UserContext to get the current logged-in user
-  const { user } = useUser()
 
   return (
-    <VStack justifyContent="center" alignItems="center" minH="100vh">
-      {/* If no user is available, display the Connect button.
-          Otherwise, display the Wallet details, Sign Message Component, Disconnect button, and ShowUI button. */}
-      {!user ? (
-        <ConnectButton />
-      ) : (
-        <>
-          <WalletDetail />
-          <SignMessage />
-          <DisconnectButton />
-          <ShowUIButton />
-        </>
-      )}
-    </VStack>
+      <Router>
+        <div className="App">
+          <Navbar/>
+            <div className="content">
+              <Routes>
+                <Route path="/profile" element={<Profile/>}/>
+                <Route path="/" element={<Home/>}/>
+                <Route path="/about" element={<About/>}/>
+              </Routes>
+            </div>
+        </div>
+      </Router>
   )
 }
 
