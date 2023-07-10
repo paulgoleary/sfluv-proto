@@ -11,8 +11,25 @@ import (
 
 var db = make(map[string]string)
 
+func CORSMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
+		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
+		c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With")
+		c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS, GET, PUT")
+
+		if c.Request.Method == "OPTIONS" {
+			c.AbortWithStatus(204)
+			return
+		}
+
+		c.Next()
+	}
+}
+
 func setupRouter() *gin.Engine {
 	r := gin.Default()
+	r.Use(CORSMiddleware())
 
 	// health test
 	r.GET("/health", func(c *gin.Context) {
@@ -20,7 +37,12 @@ func setupRouter() *gin.Engine {
 	})
 
 	ratioGroup := r.Group("ratio")
-	ratioGroup.POST("client/sessions", ratio.HandleNewSession)
+	ratioGroup.POST("sessions", ratio.HandleNewSession)
+	ratioGroup.POST("wallet", ratio.HandleSessionWallet)
+
+	ratioAuth := ratioGroup.Group("auth")
+	ratioAuth.Use(ratio.JwtAuthMiddleware())
+	ratioAuth.POST("sms", ratio.HandleAuthSMS)
 
 	return r
 }
