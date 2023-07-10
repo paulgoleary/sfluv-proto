@@ -10,6 +10,7 @@ import Profile from "./Profile"
 import Navbar from "./Navbar"
 import Home from "./Home"
 import About from "./About"
+import Test from "./Test"
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 
 
@@ -24,6 +25,7 @@ function App() {
                 <Route path="/profile" element={<Profile/>}/>
                 <Route path="/" element={<Home/>}/>
                 <Route path="/about" element={<About/>}/>
+                <Route path="/test" element={<Test/>}/>
               </Routes>
             </div>
         </div>
