@@ -1,20 +1,16 @@
 import { VStack } from "@chakra-ui/react"
 import { useUser } from "./context/UserContext"
-import { useWeb3 } from "./context/Web3Context"
 import ConnectButton from "./components/ConnectButton"
 import WalletDetail from "./components/WalletDetail"
 import DisconnectButton from "./components/DisconnectButton"
 import ShowUIButton from "./components/ShowUIButton"
 import SignMessage from "./components/SignMessage"
-import BuyButton from "./components/BuyButton"
-import GetFetchData from "./GetFetchData"
-import links from "./links"
-import { useEffect, useState } from "react"
+import { useRatio } from "./context/RatioContext"
+import { Button } from "@chakra-ui/react"
 
 const Profile = () => {
   const { user } = useUser();
-  
-  
+  const { initializeRatio } = useRatio();
 
 
 
@@ -24,10 +20,11 @@ const Profile = () => {
           <ConnectButton />
         ) : (
           <>
+            <Button className="button" onClick={initializeRatio}>Buy SFLUV</Button>
             <WalletDetail />
             <SignMessage />
             <ShowUIButton />
-            <DisconnectButton />
+            <DisconnectButton /> 
           </>
         )}
       </VStack>
