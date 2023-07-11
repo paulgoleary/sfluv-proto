@@ -11,7 +11,7 @@ import { Button } from "@chakra-ui/react"
 const Profile = () => {
   const { user } = useUser();
   const { initializeRatio } = useRatio();
-
+  const qrSource = 'https://api.qrserver.com/v1/create-qr-code/?data=ethereum:'+ user +'&size=100x100'
 
 
   return ( 
@@ -21,6 +21,7 @@ const Profile = () => {
         ) : (
           <>
             <Button className="button" onClick={initializeRatio}>Buy SFLUV</Button>
+            <img src={qrSource} alt="AddressQR"/>
             <WalletDetail />
             <SignMessage />
             <ShowUIButton />
