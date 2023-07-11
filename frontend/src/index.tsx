@@ -6,6 +6,8 @@ import reportWebVitals from "./reportWebVitals"
 import { ChakraProvider } from "@chakra-ui/react"
 import { Web3Provider } from "./context/Web3Context"
 import { UserProvider } from "./context/UserContext"
+import { RatioProvider } from "./context/RatioContext"
+
 import * as dotenv from 'dotenv';
 
 
@@ -15,7 +17,9 @@ root.render(
     <ChakraProvider>
       <Web3Provider>
         <UserProvider>
-          <App />
+          <RatioProvider>
+            <App />
+          </RatioProvider>
         </UserProvider>
       </Web3Provider>
     </ChakraProvider>
