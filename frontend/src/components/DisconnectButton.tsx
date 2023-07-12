@@ -1,13 +1,16 @@
 import { Button } from "@chakra-ui/react"
 import { magic } from "../libs/magic"
 import { useWeb3 } from "../context/Web3Context"
+import { useRatio } from "../context/RatioContext"
 
 const DisconnectButton = () => {
   // Get the initializeWeb3 function from the Web3 context
   const { initializeWeb3 } = useWeb3()
+  const { resetRatioState } = useRatio();
 
   // Define the event handler for the button click
   const handleDisconnect = async () => {
+    resetRatioState();
     try {
       // Try to disconnect the user's wallet using Magic's logout method
       await magic.user.logout()
