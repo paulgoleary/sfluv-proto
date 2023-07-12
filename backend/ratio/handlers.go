@@ -83,7 +83,7 @@ func HandleSessionWallet(c *gin.Context) {
 		c.AbortWithStatus(http.StatusInternalServerError)
 	} else {
 		if maybeUserId != "" {
-			c.JSON(http.StatusOK, fmt.Sprintf(`{"jwt":"%v", "user-id":"%v"}`, jwt, maybeUserId))
+			c.JSON(http.StatusOK, fmt.Sprintf(`{"jwt":"%v", "userId":"%v"}`, jwt, maybeUserId))
 		} else {
 			c.JSON(http.StatusOK, fmt.Sprintf(`{"jwt":"%v"}`, jwt))
 		}
@@ -103,7 +103,7 @@ func HandleSMSSend(c *gin.Context) {
 	if phoneId, err := client.authSmsOtpSend(&b); err != nil {
 		c.AbortWithStatus(http.StatusInternalServerError)
 	} else {
-		c.JSON(http.StatusOK, fmt.Sprintf(`{"phone-id":"%v"}`, phoneId))
+		c.JSON(http.StatusOK, fmt.Sprintf(`{"phoneId":"%v"}`, phoneId))
 	}
 }
 
@@ -122,7 +122,7 @@ func HandleSMSAuth(c *gin.Context) {
 		if maybeUser == nil {
 			c.JSON(http.StatusOK, fmt.Sprintf(`{"jwt":"%v"}`, jwtOut))
 		} else {
-			c.JSON(http.StatusOK, fmt.Sprintf(`{"jwt":"%v", "user-id":"%v"}`, jwtOut, maybeUser.Id))
+			c.JSON(http.StatusOK, fmt.Sprintf(`{"jwt":"%v", "userId":"%v"}`, jwtOut, maybeUser.Id))
 		}
 	}
 }
