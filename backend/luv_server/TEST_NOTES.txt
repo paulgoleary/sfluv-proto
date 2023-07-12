@@ -15,10 +15,19 @@ curl --location -g --request POST 'http://localhost:8080/ratio/wallet' \
     "signature": "XXXX"
 }'
 
-curl --location -g --request POST 'http://localhost:8080/ratio/auth/sms' \
+curl --location -g --request POST 'http://localhost:8080/ratio/jwt/sms-send' \
 --header 'Content-Type: application/json' \
 --header 'Accept: application/json' \
 --header 'Authorization: Bearer XXXX' \
 --data-raw '{
     "phoneNumber": "+14155551212"
+}'
+
+curl --location -g --request POST 'http://localhost:8080/ratio/jwt/sms-auth' \
+--header 'Content-Type: application/json' \
+--header 'Accept: application/json' \
+--header 'Authorization: Bearer XXXX' \
+--data-raw '{
+    "phoneId": "phone-number-test-XXXXXXXX",
+    "otp": "123456"
 }'

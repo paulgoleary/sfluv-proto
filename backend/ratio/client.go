@@ -95,3 +95,16 @@ func (c *ratioClient) authSmsOtpSend(ba *swagger.SendSmsOtpRequest) (phoneId str
 	}
 	return
 }
+
+func (c *ratioClient) authSmsOtpAuth(ba *swagger.AuthenticateSmsOtpRequest) (jwt string, maybeUser *swagger.User, err error) {
+	ctx, cancel := context.WithTimeout(context.Background(), c.to)
+	defer cancel()
+	var authOtpResp swagger.AuthResponse
+	if authOtpResp, _, err = c.c.AuthApi.V1AuthOtpSmsauthenticatePost(ctx, *ba, c.ratioClientId, c.ratioClientSecret); err != nil {
+		handleApiError("V1AuthOtpSmsauthenticatePost", err)
+	} else {
+		jwt = authOtpResp.SessionJwt
+		maybeUser = authOtpResp.User
+	}
+	return
+}
