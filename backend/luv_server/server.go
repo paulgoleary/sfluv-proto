@@ -40,9 +40,10 @@ func setupRouter() *gin.Engine {
 	ratioGroup.POST("sessions", ratio.HandleNewSession)
 	ratioGroup.POST("wallet", ratio.HandleSessionWallet)
 
-	ratioAuth := ratioGroup.Group("auth")
-	ratioAuth.Use(ratio.JwtAuthMiddleware())
-	ratioAuth.POST("sms", ratio.HandleAuthSMS)
+	ratioJwt := ratioGroup.Group("jwt")
+	ratioJwt.Use(ratio.JwtAuthMiddleware())
+	ratioJwt.POST("sms-send", ratio.HandleSMSSend)
+	ratioJwt.POST("sms-auth", ratio.HandleSMSAuth)
 
 	return r
 }

@@ -79,19 +79,19 @@ func HandleSessionWallet(c *gin.Context) {
 	}
 
 	client := getDefaultClient("")
-	if challenge, maybeUserId, err := client.authWalletSignature(&b); err != nil {
+	if jwt, maybeUserId, err := client.authWalletSignature(&b); err != nil {
 		c.AbortWithStatus(http.StatusInternalServerError)
 	} else {
 		if maybeUserId != "" {
-			c.JSON(http.StatusOK, fmt.Sprintf(`{"challenge":"%v", "user-id":"%v"}`, challenge, maybeUserId))
+			c.JSON(http.StatusOK, fmt.Sprintf(`{"jwt":"%v", "user-id":"%v"}`, jwt, maybeUserId))
 		} else {
-			c.JSON(http.StatusOK, fmt.Sprintf(`{"challenge":"%v"}`, challenge))
+			c.JSON(http.StatusOK, fmt.Sprintf(`{"jwt":"%v"}`, jwt))
 		}
 	}
 	return
 }
 
-func HandleAuthSMS(c *gin.Context) {
+func HandleSMSSend(c *gin.Context) {
 	jwt := c.GetString(contextJWT)
 	b := swagger.SendSmsOtpRequest{}
 	if err := c.BindJSON(&b); err != nil {
@@ -104,5 +104,25 @@ func HandleAuthSMS(c *gin.Context) {
 		c.AbortWithStatus(http.StatusInternalServerError)
 	} else {
 		c.JSON(http.StatusOK, fmt.Sprintf(`{"phone-id":"%v"}`, phoneId))
+	}
+}
+
+func HandleSMSAuth(c *gin.Context) {
+	jwtIn := c.GetString(contextJWT)
+	b := swagger.AuthenticateSmsOtpRequest{}
+	if err := c.BindJSON(&b); err != nil {
+		c.AbortWithError(http.StatusBadRequest, err)
+		return
+	}
+
+	client := getDefaultClient(jwtIn)
+	if jwtOut, maybeUser, err := client.authSmsOtpAuth(&b); err != nil {
+		c.AbortWithStatus(http.StatusInternalServerError)
+	} else {
+		if maybeUser == nil {
+			c.JSON(http.StatusOK, fmt.Sprintf(`{"jwt":"%v"}`, jwtOut))
+		} else {
+			c.JSON(http.StatusOK, fmt.Sprintf(`{"jwt":"%v", "user-id":"%v"}`, jwtOut, maybeUser.Id))
+		}
 	}
 }
