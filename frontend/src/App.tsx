@@ -11,6 +11,7 @@ import Navbar from "./Navbar"
 import Home from "./Home"
 import About from "./About"
 import Test from "./Test"
+import Buy from "./Buy"
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { useEffect, useState } from "react"
 import { useWeb3 } from "./context/Web3Context"
@@ -110,6 +111,7 @@ function App() {
                 <Route path="/" element={<Home/>}/>
                 <Route path="/about" element={<About/>}/>
                 <Route path="/test" element={<Test/>}/>
+                {user && <Route path="/buy" element={<Buy/>}/>}
               </Routes>
             </div>
         </div>

@@ -2,17 +2,18 @@ import React, { createContext, useContext, useEffect, useState } from "react"
 import { useWeb3 } from "./Web3Context"
 import { useUser } from "./UserContext"
 import links from "../links"
+import { Button } from "@chakra-ui/react"
 
 // Define the type for the user context.
 type RatioContextType = {
   ratio: string | null,
-  initializeRatio: () => void
+  initializeRatio: ( phoneNumber: string ) => void
 }
 
 // Create a context for user data.
 const RatioContext = createContext<RatioContextType>({
   ratio: null,
-  initializeRatio: () => {}
+  initializeRatio: ( phoneNumber: string ) => {},
 })
 
 // Custom hook for accessing user context data.
@@ -62,7 +63,7 @@ export const RatioProvider = ({ children }: { children: React.ReactNode }) => {
   }
 
  
-  const ratioLogin = async ( link:string ) => {
+  const ratioFirstChallenge = async ( link:string ) => {
     const challengeData = await firstFetch( luv_server + '/ratio/sessions', inputData);
     console.log('Challenge: ' + challengeData);
     const parsedData = JSON.parse(challengeData).challenge;
@@ -80,19 +81,41 @@ export const RatioProvider = ({ children }: { children: React.ReactNode }) => {
     console.log(signedChallengeInputs);
     if (!response.ok) {
         throw new Error('Data could not be fetched!')
-      } else {
-        
-        return response.json();
-      }
+    } else {
+      console.log(response);
+      return response.json();
+    }
 
     
-    } 
-    const initializeRatio = async () => {
+    }
+
+    
+    
+
+    const ratioLogin = async ( link:string, phoneNumber:string ) => {
+      
+      const resp = JSON.parse(await ratioFirstChallenge( luv_server + '/ratio/wallet' )).challenge;
+      console.log(resp);
+      const smsInputs = {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json', 'Accept': 'application/json', 'Authorization': 'Bearer ' + resp},
+        body: JSON.stringify({phoneNumber})
+      }
+      const response = await fetch(link, smsInputs);
+      if (!response.ok) {
+          throw new Error('Data could not be fetched!')
+      } else {
+        console.log(response);
+        return response.json();
+      }}
+
+
+    const initializeRatio = async ( phoneNumber:string ) => {
       if(user && web3 && !ratio) {
-        await ratioLogin( luv_server + '/ratio/wallet' )
-        .then((res) => {;
+        await ratioLogin( luv_server + '/ratio/auth/sms', phoneNumber )
+        .then((res) => {
             console.log(res);
-            setRatio(JSON.parse(res).challenge);
+            setRatio(JSON.parse(res));
         })
         .catch((e) => {
             console.log(e.message);
@@ -100,10 +123,9 @@ export const RatioProvider = ({ children }: { children: React.ReactNode }) => {
     }
 
 
+
     // Update the user state with the first account (if available), otherwise set to null.
-    useEffect(() => {
-      initializeRatio();
-    }, []);
+    
   
 
 
@@ -112,7 +134,7 @@ export const RatioProvider = ({ children }: { children: React.ReactNode }) => {
     <RatioContext.Provider
       value={{
         ratio: ratio,
-        initializeRatio,
+        initializeRatio
       }}
     >
       {children}
