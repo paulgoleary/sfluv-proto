@@ -3,6 +3,7 @@ import { useUser } from "./context/UserContext";
 import useBalance from "./useBalance";
 import links from "./links";
 import { useRatio } from "./context/RatioContext"
+import { Button } from "@chakra-ui/react";
 
 const Home = () => {
     const { luv_server } = links();
@@ -10,6 +11,7 @@ const Home = () => {
     const { ratio } = useRatio();
     const balance = useBalance();
 
+    
     return ( 
         <div className="home">
             <h1>{user}</h1>
