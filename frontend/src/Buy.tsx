@@ -8,19 +8,29 @@ const Buy = () => {
     const { bearer } = useRatio();
     const { ratio } = useRatio();
     const { phoneId } = useRatio();
+    const { triedLogin } = useRatio();
+    const { freezeUser } = useRatio();
     const { sendPhone } = useRatio();
     const { reSendPhone } = useRatio();
     const { sendOtp } = useRatio();
     const { initializeRatio } = useRatio();
+    const { resetTriedLogin } = useRatio();
+    const { resetRatioState } = useRatio();
     const [userPhone, setUserPhone] = useState('');
     const [phoneSubmitted, setPhoneSubmitted] = useState(false);
     const [otp, setOtp] = useState('');
     const [otpSubmitted, setOtpSubmitted] = useState(false);
     const [phoneSent, setPhoneSent] = useState(false);
     const [initialized, setInitialized] = useState(false);
+    
+    
 
     useEffect(() => {
-        if(!bearer){
+        resetTriedLogin();
+        if(user != freezeUser){
+            resetRatioState();
+            initializeRatio();
+        }else if(!bearer){
             initializeRatio();
         }
     }, [])
@@ -31,6 +41,7 @@ const Buy = () => {
 
     return (
         <div className="buy">
+            {!bearer && triedLogin && <Button className="button" onClick={()=>{initializeRatio();}}>Log In with Ratio</Button>}
             {bearer && !phoneId && <div>
                 <form onSubmit={ async (e) => {
                     e.preventDefault();
