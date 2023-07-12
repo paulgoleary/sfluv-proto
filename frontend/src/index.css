@@ -8,6 +8,7 @@
   background-color: white;
   padding-top: 2vh;
   display: flex;
+  flex-direction: row;
   position: sticky;
   top: 0px;
   align-items: center;
@@ -20,8 +21,17 @@
 
 
 .navbar .app-links {
+  display: flex;
+  position: relative;
+  top: 6px;
   margin-left: auto;
   padding-right: 30px;
+  flex-direction: row;
+}
+
+.navbar .web-links {
+  display: flex;
+  flex-direction: row;
 }
 
 .navbar a {
@@ -35,6 +45,9 @@
 }
 
 .navbar .profileImg {
+  display: inline;
+  position: relative;
+  bottom:2px;
   max-inline-size: 30px;
   background-color: #333;
 }

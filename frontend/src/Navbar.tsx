@@ -8,8 +8,10 @@ const Navbar = () => {
             <Link to="/"><img src={logo} alt="SFLUV" className="logo"/></Link>
             <div className="web-links">
                 <Link to="/about">About</Link>
+                
             </div>
             <div className="app-links">
+                <Link to="/test">Test</Link>
                 <Link to="/profile"><img src={profileImg} alt="Profile" className="profileImg"/></Link>
             </div>
         </nav>

@@ -6,20 +6,24 @@ import reportWebVitals from "./reportWebVitals"
 import { ChakraProvider } from "@chakra-ui/react"
 import { Web3Provider } from "./context/Web3Context"
 import { UserProvider } from "./context/UserContext"
+import { RatioProvider } from "./context/RatioContext"
+
 import * as dotenv from 'dotenv';
 
 
 const root = ReactDOM.createRoot(document.getElementById("root") as HTMLElement)
 root.render(
-  <React.StrictMode>
+  // <React.StrictMode>
     <ChakraProvider>
       <Web3Provider>
         <UserProvider>
-          <App />
+          <RatioProvider>
+            <App />
+          </RatioProvider>
         </UserProvider>
       </Web3Provider>
     </ChakraProvider>
-  </React.StrictMode>
+  // </React.StrictMode>
 )
 
 // If you want to start measuring performance in your app, pass a function
