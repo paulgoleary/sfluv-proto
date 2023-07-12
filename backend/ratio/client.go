@@ -83,3 +83,15 @@ func (c *ratioClient) authWalletSignature(ba *swagger.AuthenticateCryptoWalletRe
 	}
 	return
 }
+
+func (c *ratioClient) authSmsOtpSend(ba *swagger.SendSmsOtpRequest) (phoneId string, err error) {
+	ctx, cancel := context.WithTimeout(context.Background(), c.to)
+	defer cancel()
+	var sendOtpResp swagger.SendSmsOtpResponse
+	if sendOtpResp, _, err = c.c.AuthApi.V1AuthOtpSmssendPost(ctx, *ba, c.ratioClientId, c.ratioClientSecret); err != nil {
+		handleApiError("V1AuthOtpSmssendPost", err)
+	} else {
+		phoneId = sendOtpResp.PhoneId
+	}
+	return
+}

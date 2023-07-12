@@ -1,4 +1,4 @@
-curl --location -g --request POST 'http://192.168.4.176:8080/ratio/sessions' \
+curl --location -g --request POST 'http://localhost:8080/ratio/sessions' \
 --header 'Content-Type: application/json' \
 --header 'Accept: application/json' \
 --data-raw '{
@@ -6,11 +6,19 @@ curl --location -g --request POST 'http://192.168.4.176:8080/ratio/sessions' \
     "walletNetwork": "POLYGON"
 }'
 
-curl --location -g --request POST 'http://192.168.4.176:8080/ratio/wallet' \
+curl --location -g --request POST 'http://localhost:8080/ratio/wallet' \
 --header 'Content-Type: application/json' \
 --header 'Accept: application/json' \
 --data-raw '{
     "walletAddress": "0x33507898686B205267c66BcD41a3F2d9B15d1204",
     "walletNetwork": "POLYGON",
     "signature": "XXXX"
+}'
+
+curl --location -g --request POST 'http://localhost:8080/ratio/auth/sms' \
+--header 'Content-Type: application/json' \
+--header 'Accept: application/json' \
+--header 'Authorization: Bearer XXXX' \
+--data-raw '{
+    "phoneNumber": "+14155551212"
 }'
