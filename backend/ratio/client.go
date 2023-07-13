@@ -108,3 +108,12 @@ func (c *ratioClient) authSmsOtpAuth(ba *swagger.AuthenticateSmsOtpRequest) (jwt
 	}
 	return
 }
+
+func (c *ratioClient) authCreateUser(ba *swagger.CreateUserRequest) (user swagger.User, err error) {
+	ctx, cancel := context.WithTimeout(context.Background(), c.to)
+	defer cancel()
+	if user, _, err = c.c.UserApi.V1UsersPost(ctx, *ba, c.ratioClientId, c.ratioClientSecret); err != nil {
+		handleApiError("V1UsersPost", err)
+	}
+	return
+}

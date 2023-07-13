@@ -126,3 +126,19 @@ func HandleSMSAuth(c *gin.Context) {
 		}
 	}
 }
+
+func HandleCreateUser(c *gin.Context) {
+	jwtIn := c.GetString(contextJWT)
+	b := swagger.CreateUserRequest{}
+	if err := c.BindJSON(&b); err != nil {
+		c.AbortWithError(http.StatusBadRequest, err)
+		return
+	}
+
+	client := getDefaultClient(jwtIn)
+	if user, err := client.authCreateUser(&b); err != nil {
+		c.AbortWithStatus(http.StatusInternalServerError)
+	} else {
+		c.JSON(http.StatusOK, fmt.Sprintf(`{"userId":"%v"}`, user.Id))
+	}
+}

@@ -31,3 +31,18 @@ curl --location -g --request POST 'http://localhost:8080/ratio/jwt/sms-auth' \
     "phoneId": "phone-number-test-XXXXXXXX",
     "otp": "123456"
 }'
+
+# jwt token here needs to be result of wallet + sms auth calls
+curl --location -g --request POST 'http://localhost:8080/ratio/jwt/users' \
+--header 'Content-Type: application/json' \
+--header 'Accept: application/json' \
+--header 'Authorization: Bearer XXXX' \
+--data-raw '{
+	"firstName": "Paul ",
+	"middleName": "",
+	"lastName": "OReally",
+	"email": "paul+14155551212@oreally.com",
+	"country": "US",
+	"phone": "+14155551212"
+	"acceptedTerms": true
+}'

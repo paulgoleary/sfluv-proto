@@ -45,6 +45,8 @@ func setupRouter() *gin.Engine {
 	ratioJwt.POST("sms-send", ratio.HandleSMSSend)
 	ratioJwt.POST("sms-auth", ratio.HandleSMSAuth)
 
+	ratioJwt.POST("users", ratio.HandleCreateUser)
+
 	return r
 }
 
