@@ -79,3 +79,38 @@
 .walletDetails {
   font-family: Arial, Helvetica, sans-serif;
 }
+
+.buy {
+  display: flex;
+  text-align: center;
+  justify-content: center;
+  align-items: center;
+}
+
+.buy input {
+  font-size: 20px;
+  text-align: center;
+  border-style: solid;
+  border-width: 2px;
+  min-width: 300px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin-top: 10px;
+  margin-bottom: 30px;
+}
+
+.buy input.otp {
+  min-width: 100px;
+}
+
+.buy .button {
+  background-color: #eb6c6c;
+  color: white;
+  margin-bottom: 10px;
+}
+
+.buy h1 {
+  font-size: 30px;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
