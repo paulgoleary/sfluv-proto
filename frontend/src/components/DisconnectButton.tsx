@@ -2,11 +2,13 @@ import { Button } from "@chakra-ui/react"
 import { magic } from "../libs/magic"
 import { useWeb3 } from "../context/Web3Context"
 import { useRatio } from "../context/RatioContext"
+import { useEffect, useState } from "react"
 
 const DisconnectButton = () => {
   // Get the initializeWeb3 function from the Web3 context
   const { initializeWeb3 } = useWeb3()
   const { resetRatioState } = useRatio();
+  const [isPending, setIsPending ] = useState(true);
 
   // Define the event handler for the button click
   const handleDisconnect = async () => {
@@ -22,9 +24,12 @@ const DisconnectButton = () => {
       console.log("handleDisconnect:", error)
     }
   }
+  useEffect(() => {
+    setIsPending(false);
+  }, [])
 
   // Render the button component with the click event handler
-  return <Button onClick={handleDisconnect}>Disconnect</Button>
+  return (<div>{!isPending && <Button onClick={handleDisconnect}>Disconnect</Button>}</div>)
 }
 
 export default DisconnectButton

@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react"
-import { Button } from "@chakra-ui/react"
+import { Button, Spinner } from "@chakra-ui/react"
 import { magic } from "../libs/magic"
 
 const ShowUIButton = () => {
   // Initialize state variable to decide whether to show button or not
-  const [showButton, setShowButton] = useState(false)
+  const [showButton, setShowButton] = useState(false);
 
   // Define a function to check the type of the wallet
   const checkWalletType = async () => {
@@ -40,9 +40,17 @@ const ShowUIButton = () => {
       console.error("handleShowUI:", error)
     }
   }
+  return (
+    <div>
+      {showButton && <Button className="button" onClick={handleShowUI}>Show UI</Button>}
+      {!showButton && <Spinner/>}
+    </div> 
+  ) 
+}
 
   // Render the button component if showButton is true, otherwise render nothing
-  return showButton ? <Button className="button" onClick={handleShowUI}>Show UI</Button> : null
-}
+  
+
+  
 
 export default ShowUIButton

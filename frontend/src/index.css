@@ -23,10 +23,10 @@
 .navbar .app-links {
   display: flex;
   position: relative;
-  top: 6px;
   margin-left: auto;
   padding-right: 30px;
   flex-direction: row;
+  top: 6px;
 }
 
 .navbar .web-links {
@@ -85,6 +85,7 @@
   text-align: center;
   justify-content: center;
   align-items: center;
+  min-width: 100px;
 }
 
 .buy input {
@@ -92,16 +93,12 @@
   text-align: center;
   border-style: solid;
   border-width: 2px;
-  min-width: 300px;
   padding-left: 5px;
   padding-right: 5px;
   margin-top: 10px;
   margin-bottom: 30px;
 }
 
-.buy input.otp {
-  min-width: 100px;
-}
 
 .buy .button {
   background-color: #eb6c6c;
@@ -110,6 +107,22 @@
 }
 
 .buy h1 {
+  font-size: 30px;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+.pin {
+  width: auto;
+}
+
+
+.pinInput {
+  margin: 10px;
+  size: 30px;
+}
+
+.loggedIn {
   font-size: 30px;
   font-weight: bold;
   margin-bottom: 20px;
