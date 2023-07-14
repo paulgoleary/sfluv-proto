@@ -11,12 +11,23 @@ type RatioContextType = {
   phoneId: string | null,
   triedLogin: boolean | null,
   freezeUser: string | null,
+  userSubmitted: boolean | null,
   sendOtp: ( otp : string ) => void,
   sendPhone: ( phoneNumber : string ) => void,
   reSendPhone: () => void,
   initializeRatio: () => void,
   resetTriedLogin: () => void,
   resetRatioState: () => void,
+  sendUser: () => void,
+
+    setUserData: (
+      firstName : string, 
+      middleName : string, 
+      lastName : string, 
+      email : string, 
+      country : string, 
+      phone : string, 
+      acceptedTerms : boolean, ) => void,
   
   initializeRatioPending: boolean | null,
   initializeRatioError: boolean| null,
@@ -38,12 +49,23 @@ const RatioContext = createContext<RatioContextType>({
   phoneId: null,
   triedLogin: null,
   freezeUser: null,
+  userSubmitted: null,
   sendOtp: ( otp: string ) => {},
   sendPhone: ( phoneNumber : string ) => {},
   reSendPhone: () => {},
   initializeRatio: () => {},
   resetTriedLogin: () => {},
   resetRatioState: () => {},
+  sendUser:() =>{},
+
+  setUserData:(
+    firstName : string, 
+    middleName : string, 
+    lastName : string, 
+    email : string, 
+    country : string, 
+    phone : string, 
+    acceptedTerms : boolean, ) =>{},
 
   initializeRatioPending: null,
   initializeRatioError: null,
@@ -66,7 +88,7 @@ export const RatioProvider = ({ children }: { children: React.ReactNode }) => {
   // Use the web3 context.
   const { web3 } = useWeb3()
   const { user } = useUser()
-  const [ratio, setRatio] = useState<string | null>(null)
+  const [ratio, setRatio] = useState<string | null>(null);
   const { luv_server } = links();
   const walletAddress = useUser().user;
   const walletNetwork = "POLYGON";
@@ -76,24 +98,35 @@ export const RatioProvider = ({ children }: { children: React.ReactNode }) => {
     headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
     body: JSON.stringify(inputs)
   }
-  const [signedData, setSignedData] = useState('');
-  const [bearer, setBearer] = useState('');
-  const [phoneId, setPhoneId] = useState('');
+  const [signedData, setSignedData] = useState<string | null>(null);
+  const [bearer, setBearer] = useState<string | null>(null);
+  const [phoneId, setPhoneId] = useState<string | null>(null);
   const [triedLogin, setTriedLogin] = useState(false);
   const [tempPhone, setTempPhone] = useState('');
-  const [freezeUser, setFreezeUser] = useState('');
+  const [freezeUser, setFreezeUser] = useState<string | null>(null);
+
+  const [ userPhone, setUserPhone ] = useState('');
+  const [ firstName, setFirstName ] = useState('');
+  const [ middleName, setMiddleName ] = useState('');
+  const [ lastName, setLastName ] = useState('');
+  const [ email, setEmail ] = useState('');
+  const [ country, setCountry ] = useState('');
+  const [ phone, setPhone ] = useState('');
+  const [ acceptedTerms, setAcceptedTerms ] = useState(false);
+  const [ userSubmitted, setUserSubmitted ] = useState(false);
+  const [ otp, setOtp ] = useState('');
 
   const [initializeRatioPending, setInitializeRatioPending] = useState(false);
   const [initializeRatioError, setInitializeRatioError] = useState(false);
-  const [initializeRatioErrorMessage, setInitializeRatioErrorMessage] = useState('');
+  const [initializeRatioErrorMessage, setInitializeRatioErrorMessage] = useState<string | null>(null);
 
   const [sendPhonePending, setSendPhonePending] = useState(false);
   const [sendPhoneError, setSendPhoneError] = useState(false);
-  const [sendPhoneErrorMessage, setSendPhoneErrorMessage] = useState('');
+  const [sendPhoneErrorMessage, setSendPhoneErrorMessage] = useState<string | null>(null);
 
   const [sendOtpPending, setSendOtpPending] = useState(false);
   const [sendOtpError, setOtpError] = useState(false);
-  const [sendOtpErrorMessage, setOtpErrorMessage] = useState('');
+  const [sendOtpErrorMessage, setOtpErrorMessage] = useState<string | null>(null);
 
 
 
@@ -182,6 +215,7 @@ export const RatioProvider = ({ children }: { children: React.ReactNode }) => {
       await ratioFirstChallenge( luv_server + '/ratio/wallet' )
       .then((res) => {
         setBearer(JSON.parse(res).jwt)
+        console.log(JSON.parse(res));
         setInitializeRatioPending(false);
       })
       .catch(() => {
@@ -212,7 +246,7 @@ export const RatioProvider = ({ children }: { children: React.ReactNode }) => {
     if(user && web3 && !ratio) {
       await ratioLogin( luv_server + '/ratio/jwt/sms-send', phoneNumber )
       .then((res) => {
-          console.log(JSON.parse(res).phoneId); 
+          console.log(JSON.parse(res)); 
           setPhoneId(JSON.parse(res).phoneId);
           setSendPhonePending(false);
       })
@@ -230,8 +264,7 @@ export const RatioProvider = ({ children }: { children: React.ReactNode }) => {
     if(user && web3 && !ratio) {
       await ratioLogin( luv_server + '/ratio/jwt/sms-send', tempPhone )
       .then((res) => {
-          console.log(JSON.parse(res).phoneId);
-          
+          console.log(JSON.parse(res)); 
           setPhoneId(JSON.parse(res).phoneId);
       })
       .catch((e) => {
@@ -264,8 +297,8 @@ export const RatioProvider = ({ children }: { children: React.ReactNode }) => {
       setOtpError(false);
       await makeOtpSend(otp)
       .then((res) => {
-          console.log(res);
-          setRatio(res);
+          console.log(JSON.parse(res));
+          setRatio(JSON.parse(res).jwt);
           setSendOtpPending(false);
       })
       .catch((e) => {
@@ -273,6 +306,72 @@ export const RatioProvider = ({ children }: { children: React.ReactNode }) => {
           setSendOtpPending(false);
           setOtpError(true);
           setOtpErrorMessage(e.message);
+      })
+    } 
+  }
+
+  const setUserData = (
+    firstName : string, 
+    middleName : string, 
+    lastName : string, 
+    email : string, 
+    country : string, 
+    phone : string, 
+    acceptedTerms : boolean, 
+    ) => {
+      setFirstName(firstName);
+      setMiddleName(middleName);
+      setLastName(lastName);
+      setEmail(email);
+      setCountry(country);
+      setPhone(phone);
+      setAcceptedTerms(acceptedTerms);
+      setUserSubmitted(true);
+  }
+
+
+  const makeUserSend = async (
+      firstName : string, 
+      middleName : string, 
+      lastName : string, 
+      email : string, 
+      country : string, 
+      phone : string, 
+      acceptedTerms : boolean, 
+      ) => {
+        if(ratio){
+        console.log(phoneId);
+        const response = await fetch(luv_server + '/ratio/jwt/users', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json', 'Accept': 'application/json', 'Authorization': 'Bearer ' + ratio},
+          body: JSON.stringify({ firstName, middleName, lastName, email, country, phone, acceptedTerms })
+        })
+        if (!response.ok) {
+          throw new Error('Data could not be fetched!')
+        } else {
+        console.log(response);
+        return response.json();
+        } }
+  }
+
+  const sendUser = async ()=> {
+    console.log("Sending User..." + firstName, middleName, lastName, email, country, phone, acceptedTerms )
+    if(user && web3 && !ratio) {
+      console.log("Sent!")
+      await makeUserSend(
+        firstName, 
+        middleName, 
+        lastName, 
+        email, 
+        country, 
+        phone, 
+        acceptedTerms, 
+        )
+      .then((res) => {
+          console.log(res);
+      })
+      .catch((e) => {
+          console.log(e.message);
       })
     } 
   }
@@ -290,6 +389,14 @@ export const RatioProvider = ({ children }: { children: React.ReactNode }) => {
     setTriedLogin(false);
     setTempPhone('');
     setRatio('');
+    setFirstName('');
+    setMiddleName('');
+    setLastName('');
+    setEmail('');
+    setCountry('');
+    setPhone('');
+    setAcceptedTerms(false);
+    setUserSubmitted(false);
   }
 
 
@@ -302,6 +409,7 @@ export const RatioProvider = ({ children }: { children: React.ReactNode }) => {
         phoneId: phoneId,
         triedLogin: triedLogin,
         freezeUser: freezeUser,
+        userSubmitted: userSubmitted,
         initializeRatioPending: initializeRatioPending,
         initializeRatioError: initializeRatioError,
         initializeRatioErrorMessage: initializeRatioErrorMessage,
@@ -311,9 +419,11 @@ export const RatioProvider = ({ children }: { children: React.ReactNode }) => {
         sendOtpPending: sendOtpPending,
         sendOtpError: sendOtpError,
         sendOtpErrorMessage: sendOtpErrorMessage,
+        setUserData,
         sendPhone,
         reSendPhone,
         sendOtp,
+        sendUser,
         initializeRatio,
         resetTriedLogin,
         resetRatioState

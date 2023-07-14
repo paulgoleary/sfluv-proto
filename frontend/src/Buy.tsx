@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useRatio } from "./context/RatioContext";
 import { useUser } from "./context/UserContext";
-import { Button, HStack, Input, PinInput, PinInputField, Spinner } from "@chakra-ui/react";
+import { Button, Checkbox, HStack, Input, PinInput, PinInputField, Spinner } from "@chakra-ui/react";
 
 const Buy = () => {
     const { user } = useUser();
@@ -10,14 +10,24 @@ const Buy = () => {
     const { phoneId } = useRatio();
     const { triedLogin } = useRatio();
     const { freezeUser } = useRatio();
+    const { userSubmitted } = useRatio();
     const { sendPhone } = useRatio();
     const { reSendPhone } = useRatio();
     const { sendOtp } = useRatio();
+    const { sendUser } = useRatio();
+    const { setUserData } = useRatio();
     const { initializeRatio } = useRatio();
     const { resetTriedLogin } = useRatio();
     const { resetRatioState } = useRatio();
-    const [userPhone, setUserPhone] = useState('');
-    const [otp, setOtp] = useState('');
+    const [ userPhone, setUserPhone ] = useState('');
+    const [ firstName, setFirstName ] = useState('');
+    const [ middleName, setMiddleName ] = useState('');
+    const [ lastName, setLastName ] = useState('');
+    const [ email, setEmail ] = useState('');
+    const [ country, setCountry ] = useState('');
+    const [ acceptedTerms, setAcceptedTerms ] = useState(false);
+    const [ otp, setOtp ] = useState('');
+    const [ testPhone, setTestPhone ] = useState('');
 
     const { sendPhonePending } = useRatio();
     const { sendPhoneError } = useRatio();
@@ -42,7 +52,15 @@ const Buy = () => {
         }else if(!bearer){
             initializeRatio();
         }
-    }, [])
+    }, []);
+
+    useEffect(() => {
+        if(ratio && userSubmitted){
+            console.log("Sent User Data!")
+            sendUser();
+        }
+    }, [ratio]);
+
 
     
 
@@ -64,15 +82,59 @@ const Buy = () => {
                     const phone = '+' + userPhone;
                     console.log(phone);
                     sendPhone(phone);
+                    setUserData(
+                        firstName, 
+                        middleName, 
+                        lastName, 
+                        email, 
+                        country, 
+                        phone, 
+                        acceptedTerms);
                     console.log(ratio);
                 }}>
-                <h1>Enter Phone Number</h1>
+                <h1>Sign Up with Ratio</h1>
+                <Input 
+                    type="text" 
+                    required
+                    placeholder="First Name" 
+                    onChange={(e) => setFirstName(e.target.value)} 
+                    value={firstName}/>
+                <Input 
+                    type="text" 
+                    required
+                    placeholder="Middle Name" 
+                    onChange={(e) => setMiddleName(e.target.value)} 
+                    value={middleName}/>
+                <Input 
+                    type="text" 
+                    required
+                    placeholder="Last Name" 
+                    onChange={(e) => setLastName(e.target.value)} 
+                    value={lastName}/>
+                <Input 
+                    type="text" 
+                    required
+                    placeholder="Email" 
+                    onChange={(e) => setEmail(e.target.value)} 
+                    value={email}/>
+                <Input 
+                    type="text" 
+                    required
+                    placeholder="Country" 
+                    onChange={(e) => setCountry(e.target.value)} 
+                    value={country}/>
                 <Input 
                     type="tel" 
+                    required
                     placeholder="Please Include Country Code" 
                     onChange={(e) => setUserPhone(e.target.value)} 
                     value={userPhone}/>
-                <br/>
+                <Checkbox 
+                    required
+                    onChange={(e) => setAcceptedTerms(e.target.checked)} 
+                    >I agree to the Terms and Conditions
+                </Checkbox>
+                <br/><br/>
                 <Button 
                     type='submit' 
                     className="button"
