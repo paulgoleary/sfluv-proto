@@ -8,6 +8,7 @@ import { Button } from "@chakra-ui/react"
 type RatioContextType = {
   bearer: string | null,
   ratio: string | null,
+  userId: string | null,
   phoneId: string | null,
   triedLogin: boolean | null,
   freezeUser: string | null,
@@ -46,6 +47,7 @@ type RatioContextType = {
 const RatioContext = createContext<RatioContextType>({
   bearer: null,
   ratio: null,
+  userId: null,
   phoneId: null,
   triedLogin: null,
   freezeUser: null,
@@ -88,7 +90,9 @@ export const RatioProvider = ({ children }: { children: React.ReactNode }) => {
   // Use the web3 context.
   const { web3 } = useWeb3()
   const { user } = useUser()
-  const [ratio, setRatio] = useState<string | null>(null);
+  const [ ratio, setRatio ] = useState<string | null>(null);
+  const [ userId, setUserId ] = useState<string | null>(null);
+
   const { luv_server } = links();
   const walletAddress = useUser().user;
   const walletNetwork = "POLYGON";
@@ -327,6 +331,7 @@ export const RatioProvider = ({ children }: { children: React.ReactNode }) => {
       setPhone(phone);
       setAcceptedTerms(acceptedTerms);
       setUserSubmitted(true);
+      console.log("Set User Data");
   }
 
 
@@ -340,7 +345,7 @@ export const RatioProvider = ({ children }: { children: React.ReactNode }) => {
       acceptedTerms : boolean, 
       ) => {
         if(ratio){
-        console.log(phoneId);
+        console.log("User: " + JSON.stringify({ firstName, middleName, lastName, email, country, phone, acceptedTerms }));
         const response = await fetch(luv_server + '/ratio/jwt/users', {
           method: 'POST',
           headers: {'Content-Type': 'application/json', 'Accept': 'application/json', 'Authorization': 'Bearer ' + ratio},
@@ -355,8 +360,8 @@ export const RatioProvider = ({ children }: { children: React.ReactNode }) => {
   }
 
   const sendUser = async ()=> {
-    console.log("Sending User..." + firstName, middleName, lastName, email, country, phone, acceptedTerms )
-    if(user && web3 && !ratio) {
+    console.log("Sending User..." + JSON.stringify({ firstName, middleName, lastName, email, country, phone, acceptedTerms }))
+    if(user && web3 && ratio) {
       console.log("Sent!")
       await makeUserSend(
         firstName, 
@@ -368,7 +373,8 @@ export const RatioProvider = ({ children }: { children: React.ReactNode }) => {
         acceptedTerms, 
         )
       .then((res) => {
-          console.log(res);
+          console.log(JSON.parse(res));
+          setUserId(JSON.parse(res));
       })
       .catch((e) => {
           console.log(e.message);
@@ -406,6 +412,7 @@ export const RatioProvider = ({ children }: { children: React.ReactNode }) => {
       value={{
         bearer: bearer,
         ratio: ratio,
+        userId: userId,
         phoneId: phoneId,
         triedLogin: triedLogin,
         freezeUser: freezeUser,

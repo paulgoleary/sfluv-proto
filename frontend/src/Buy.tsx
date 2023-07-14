@@ -2,6 +2,10 @@ import { useEffect, useState } from "react";
 import { useRatio } from "./context/RatioContext";
 import { useUser } from "./context/UserContext";
 import { Button, Checkbox, HStack, Input, PinInput, PinInputField, Spinner } from "@chakra-ui/react";
+import 'react-phone-number-input/style.css'
+import PhoneInput, { isValidPhoneNumber } from 'react-phone-number-input'
+import { parsePhoneNumber } from "react-phone-number-input";
+
 
 const Buy = () => {
     const { user } = useUser();
@@ -19,13 +23,13 @@ const Buy = () => {
     const { initializeRatio } = useRatio();
     const { resetTriedLogin } = useRatio();
     const { resetRatioState } = useRatio();
-    const [ userPhone, setUserPhone ] = useState('');
+    const [ userPhone, setUserPhone ] = useState<string | null>();
     const [ firstName, setFirstName ] = useState('');
     const [ middleName, setMiddleName ] = useState('');
     const [ lastName, setLastName ] = useState('');
     const [ email, setEmail ] = useState('');
-    const [ country, setCountry ] = useState('');
     const [ acceptedTerms, setAcceptedTerms ] = useState(false);
+    const [ phoneValid, setPhoneValid ] = useState(true);
     const [ otp, setOtp ] = useState('');
     const [ testPhone, setTestPhone ] = useState('');
 
@@ -77,20 +81,26 @@ const Buy = () => {
             </Button>}
             {initializeRatioPending && <Spinner size="lg"/>}
             {bearer && !phoneId && !sendPhonePending && <div>
-                <form onSubmit={ async (e) => {
+                <form className="form"onSubmit={ async (e) => {
                     e.preventDefault();
-                    const phone = '+' + userPhone;
-                    console.log(phone);
-                    sendPhone(phone);
-                    setUserData(
-                        firstName, 
-                        middleName, 
-                        lastName, 
-                        email, 
-                        country, 
-                        phone, 
-                        acceptedTerms);
-                    console.log(ratio);
+                    const phone = '' + userPhone;
+                    if(isValidPhoneNumber(phone)){
+                        setPhoneValid(true);
+                        const country  = '' + parsePhoneNumber(phone);
+                        console.log(phone);
+                        sendPhone(phone);
+                        setUserData(
+                            firstName, 
+                            middleName, 
+                            lastName, 
+                            email, 
+                            country, 
+                            phone, 
+                            acceptedTerms);
+                        console.log(ratio);
+                    }else{
+                        setPhoneValid(false);
+                    }
                 }}>
                 <h1>Sign Up with Ratio</h1>
                 <Input 
@@ -117,22 +127,17 @@ const Buy = () => {
                     placeholder="Email" 
                     onChange={(e) => setEmail(e.target.value)} 
                     value={email}/>
-                <Input 
-                    type="text" 
+                <PhoneInput
                     required
-                    placeholder="Country" 
-                    onChange={(e) => setCountry(e.target.value)} 
-                    value={country}/>
-                <Input 
-                    type="tel" 
-                    required
-                    placeholder="Please Include Country Code" 
-                    onChange={(e) => setUserPhone(e.target.value)} 
-                    value={userPhone}/>
+                    placeholder="Enter phone number"
+                    value={userPhone ? userPhone : ''}
+                    onChange={setUserPhone}/>
+                    {!phoneValid && <p className="error">Phone Number Invalid</p>}
                 <Checkbox 
                     required
                     onChange={(e) => setAcceptedTerms(e.target.checked)} 
-                    >I agree to the Terms and Conditions
+                    >I agree to the&nbsp;
+                    <a href="https://www.ratio.me/legal/ratio-labs-usa-inc-terms-of-service" target="_blank">Terms of Service</a>
                 </Checkbox>
                 <br/><br/>
                 <Button 
