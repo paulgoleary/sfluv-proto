@@ -28,6 +28,9 @@ func getDefaultClient(maybeJwt string) *ratioClient {
 
 	c.ratioClientId = os.Getenv("RATIO_CLIENT_ID")
 	c.ratioClientSecret = os.Getenv("RATIO_CLIENT_SECRET")
+	if c.ratioClientId == "" || c.ratioClientSecret == "" {
+		log.Error("client is misconfigured - missing client ID a/o secret") // TODO: return error?
+	}
 
 	cfg := swagger.NewConfiguration()
 	cfg.BasePath = sandboxUrl
@@ -77,9 +80,6 @@ func (c *ratioClient) authWalletSignature(ba *swagger.AuthenticateCryptoWalletRe
 		handleApiError("V1AuthCryptoWalletauthenticatePost", err)
 	} else {
 		jwt = authResp.SessionJwt
-		if authResp.UserMask != nil {
-			maybeUserId = authResp.UserMask.Id
-		}
 	}
 	return
 }
@@ -109,11 +109,33 @@ func (c *ratioClient) authSmsOtpAuth(ba *swagger.AuthenticateSmsOtpRequest) (jwt
 	return
 }
 
-func (c *ratioClient) authCreateUser(ba *swagger.CreateUserRequest) (user swagger.User, err error) {
+func (c *ratioClient) authCreateUser(ba *swagger.CreateUserRequest, maybeAddr string) (user swagger.User, err error) {
 	ctx, cancel := context.WithTimeout(context.Background(), c.to)
 	defer cancel()
 	if user, _, err = c.c.UserApi.V1UsersPost(ctx, *ba, c.ratioClientId, c.ratioClientSecret); err != nil {
 		handleApiError("V1UsersPost", err)
+		return
+	}
+	// if default address is provided, attach to user
+	if maybeAddr != "" {
+		b := swagger.ConnectWalletRequest{
+			Address: maybeAddr,
+			Type_:   "POLYGON",
+			Name:    "SFLUV Default Wallet",
+		}
+		if _, _, err = c.c.WalletApi.V1UsersUserIdWalletsPost(ctx, b, c.ratioClientId, c.ratioClientSecret, user.Id); err != nil {
+			handleApiError("V1UsersUserIdWalletsPost", err)
+			return
+		}
+	}
+	return
+}
+
+func (c *ratioClient) getUser(userId string) (user swagger.User, err error) {
+	ctx, cancel := context.WithTimeout(context.Background(), c.to)
+	defer cancel()
+	if user, _, err = c.c.UserApi.V1UsersUserIdGet(ctx, userId, c.ratioClientId, c.ratioClientSecret); err != nil {
+		handleApiError("V1UsersUserIdGet", err)
 	}
 	return
 }

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	swagger "github.com/paulgoleary/local-luv-proto/ratio/go-client-generated"
+	"github.com/paulgoleary/local-luv-proto/util"
 	"net/http"
 	"strings"
 )
@@ -83,7 +84,13 @@ func HandleSessionWallet(c *gin.Context) {
 		c.AbortWithStatus(http.StatusInternalServerError)
 	} else {
 		if maybeUserId != "" {
-			c.JSON(http.StatusOK, fmt.Sprintf(`{"jwt":"%v", "userId":"%v"}`, jwt, maybeUserId))
+			client = getDefaultClient(jwt)
+			var user swagger.User
+			if user, err = client.getUser(maybeUserId); err != nil {
+				c.AbortWithStatus(http.StatusInternalServerError)
+			} else {
+				c.JSON(http.StatusOK, fmt.Sprintf(`{"jwt":"%v", "userId":"%v", "phoneNumber":"%v"}`, jwt, maybeUserId, user.Phone))
+			}
 		} else {
 			c.JSON(http.StatusOK, fmt.Sprintf(`{"jwt":"%v"}`, jwt))
 		}
@@ -136,7 +143,8 @@ func HandleCreateUser(c *gin.Context) {
 	}
 
 	client := getDefaultClient(jwtIn)
-	if user, err := client.authCreateUser(&b); err != nil {
+	maybeAddr := util.JWTExtractRatioAuthAddress(jwtIn)
+	if user, err := client.authCreateUser(&b, maybeAddr); err != nil {
 		c.AbortWithStatus(http.StatusInternalServerError)
 	} else {
 		c.JSON(http.StatusOK, fmt.Sprintf(`{"userId":"%v"}`, user.Id))

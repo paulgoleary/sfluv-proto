@@ -56,3 +56,11 @@ func SKFromInt(skInt *big.Int) (ret *ecdsa.PrivateKey, err error) {
 	ret = (*ecdsa.PrivateKey)(sk)
 	return
 }
+
+func RandSK() (ret *ecdsa.PrivateKey, err error) {
+	var sk *btcec.PrivateKey
+	if sk, err = btcec.NewPrivateKey(S256); err != nil {
+		return
+	}
+	return SKFromInt(sk.D)
+}
