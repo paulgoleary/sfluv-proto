@@ -43,7 +43,7 @@ const Profile = () => {
       {!user ? (<Button className="button" onClick={() => {handleConnect()}}>Log In</Button>
         ) : (
           <>
-            {ratio.ratio && <h1>Logged in with Ratio</h1>}
+            {ratio.ratio && <h1 className="loggedIn">Logged in with Ratio</h1>}
             <img src={qrSource} alt="AddressQR"/>
             <WalletDetail />
             <SignMessage />

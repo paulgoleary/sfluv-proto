@@ -9,6 +9,7 @@ const Home = () => {
     const { luv_server } = links();
     const { user } = useUser();
     const { ratio } = useRatio();
+    const { userId } = useRatio();
     const balance = useBalance();
 
     
@@ -16,7 +17,8 @@ const Home = () => {
         <div className="home">
             <h1>{user}</h1>
             {user && <h2>Balance: {balance}</h2>}
-            {ratio && <h2>Ratio Logon: {ratio}</h2>}
+            {ratio && <h2>Ratio Logon: <div className="ratioLogon"><div className="ratioLogonText">{ratio}</div></div></h2>}
+            {userId && <h2>Ratio User ID: {userId}</h2>}
         </div> 
     );
 }
