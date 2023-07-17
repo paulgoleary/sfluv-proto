@@ -73,6 +73,9 @@ func TestRatioAPI(t *testing.T) {
 	}
 	println(addr.String())
 	resp, httpResp, err := c.c.AuthApi.V1AuthCryptoWalletstartPost(context.Background(), b, c.ratioClientId, c.ratioClientSecret)
+	if swagErr, ok := err.(swagger.GenericSwaggerError); ok {
+		println(string(swagErr.Body()))
+	}
 	require.NoError(t, err)
 	_ = httpResp
 

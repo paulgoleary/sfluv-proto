@@ -120,7 +120,7 @@ func (c *ratioClient) authCreateUser(ba *swagger.CreateUserRequest, maybeAddr st
 	if maybeAddr != "" {
 		b := swagger.ConnectWalletRequest{
 			Address: maybeAddr,
-			Type_:   "POLYGON",
+			Type_:   "EVM",
 			Name:    "SFLUV Default Wallet",
 		}
 		if _, _, err = c.c.WalletApi.V1UsersUserIdWalletsPost(ctx, b, c.ratioClientId, c.ratioClientSecret, user.Id); err != nil {
