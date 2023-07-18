@@ -150,3 +150,20 @@ func HandleCreateUser(c *gin.Context) {
 		c.JSON(http.StatusOK, fmt.Sprintf(`{"userId":"%v"}`, user.Id))
 	}
 }
+
+func HandleUserKyc(c *gin.Context) {
+	jwtIn := c.GetString(contextJWT)
+	b := swagger.SubmitKycRequest{}
+	if err := c.BindJSON(&b); err != nil {
+		c.AbortWithError(http.StatusBadRequest, err)
+		return
+	}
+
+	client := getDefaultClient(jwtIn)
+	userId, _ := c.Params.Get("userId")
+	if user, err := client.authUserKyc(&b, userId); err != nil {
+		c.AbortWithStatus(http.StatusInternalServerError)
+	} else {
+		c.JSON(http.StatusOK, fmt.Sprintf(`{"userId":"%v"}`, user.Id))
+	}
+}

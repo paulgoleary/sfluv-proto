@@ -33,16 +33,17 @@ curl --location -g --request POST 'http://localhost:8080/ratio/jwt/sms-auth' \
 }'
 
 # jwt token here needs to be result of wallet + sms auth calls
-curl --location -g --request POST 'http://localhost:8080/ratio/jwt/users' \
+
+curl --location -g --request POST 'http://localhost:8080/ratio/jwt/users/USER-ID/kyc' \
 --header 'Content-Type: application/json' \
 --header 'Accept: application/json' \
 --header 'Authorization: Bearer XXXX' \
 --data-raw '{
-	"firstName": "Paul ",
-	"middleName": "",
-	"lastName": "OReally",
-	"email": "paul+14155551212@oreally.com",
-	"country": "US",
-	"phone": "+14155551212"
-	"acceptedTerms": true
+    "dateOfBirth": "1968-01-01",
+    "idType":      "SSN",
+    "idNumber":    "587947847",
+    "line1":       "1212 1st st.",
+    "city":        "San Francisco",
+    "state":       "CA",
+    "postalCode":  "94131"
 }'
