@@ -134,6 +134,15 @@ func (c *ratioClient) authCreateUser(ba *swagger.CreateUserRequest, maybeAddr st
 	return
 }
 
+func (c *ratioClient) authUserKyc(ba *swagger.SubmitKycRequest, userId string) (user swagger.User, err error) {
+	ctx, cancel := context.WithTimeout(context.Background(), c.to)
+	defer cancel()
+	if user, _, err = c.c.UserApi.V1UsersUserIdKycPost(ctx, *ba, c.ratioClientId, c.ratioClientSecret, userId); err != nil {
+		handleApiError("V1UsersUserIdKycPost", err)
+	}
+	return
+}
+
 func (c *ratioClient) getUser(userId string) (user swagger.User, err error) {
 	ctx, cancel := context.WithTimeout(context.Background(), c.to)
 	defer cancel()

@@ -46,6 +46,7 @@ func setupRouter() *gin.Engine {
 	ratioJwt.POST("sms-auth", ratio.HandleSMSAuth)
 
 	ratioJwt.POST("users", ratio.HandleCreateUser)
+	ratioJwt.POST("users/:userId/kyc", ratio.HandleUserKyc)
 
 	return r
 }
