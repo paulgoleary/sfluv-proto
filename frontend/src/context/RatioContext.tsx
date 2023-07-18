@@ -6,7 +6,7 @@ import { Button } from "@chakra-ui/react"
 
 // Define the type for the user context.
 type RatioContextType = {
-  bearer: string | null,
+  bearerValue: string | null,
   ratio: string | null,
   userId: string | null,
   phoneId: string | null,
@@ -14,7 +14,7 @@ type RatioContextType = {
   freezeUser: string | null,
   userSubmitted: boolean | null,
   sendOtp: ( otp : string ) => void,
-  sendPhone: ( phoneNumber : string ) => void,
+  sendPhone: ( phoneNumber: string, bearer : string | null ) => void,
   reSendPhone: () => void,
   initializeRatio: () => void,
   resetTriedLogin: () => void,
@@ -45,7 +45,7 @@ type RatioContextType = {
 
 // Create a context for user data.
 const RatioContext = createContext<RatioContextType>({
-  bearer: null,
+  bearerValue: null,
   ratio: null,
   userId: null,
   phoneId: null,
@@ -53,7 +53,7 @@ const RatioContext = createContext<RatioContextType>({
   freezeUser: null,
   userSubmitted: null,
   sendOtp: ( otp: string ) => {},
-  sendPhone: ( phoneNumber : string ) => {},
+  sendPhone: ( phoneNumber: string, bearer : string | null ) => {},
   reSendPhone: () => {},
   initializeRatio: () => {},
   resetTriedLogin: () => {},
@@ -103,7 +103,7 @@ export const RatioProvider = ({ children }: { children: React.ReactNode }) => {
     body: JSON.stringify(inputs)
   }
   const [signedData, setSignedData] = useState<string | null>(null);
-  const [bearer, setBearer] = useState<string | null>(null);
+  const [bearerValue, setBearerValue] = useState<string | null>(null);
   const [phoneId, setPhoneId] = useState<string | null>(null);
   const [triedLogin, setTriedLogin] = useState(false);
   const [tempPhone, setTempPhone] = useState('');
@@ -131,6 +131,8 @@ export const RatioProvider = ({ children }: { children: React.ReactNode }) => {
   const [sendOtpPending, setSendOtpPending] = useState(false);
   const [sendOtpError, setOtpError] = useState(false);
   const [sendOtpErrorMessage, setOtpErrorMessage] = useState<string | null>(null);
+
+  
 
 
 
@@ -195,7 +197,7 @@ export const RatioProvider = ({ children }: { children: React.ReactNode }) => {
     
   
 
-  const ratioLogin = async ( link:string, phoneNumber:string ) => {
+  const ratioLogin = async ( link:string, phoneNumber:string, bearer: string | null ) => {
     const smsInputs = {
       method: 'POST',
       headers: {'Content-Type': 'application/json', 'Accept': 'application/json', 'Authorization': 'Bearer ' + bearer},
@@ -210,6 +212,38 @@ export const RatioProvider = ({ children }: { children: React.ReactNode }) => {
       return response.json();
   }}
 
+
+  const sendPhone = async ( phoneNumber: string, bearer : string | null ) => {
+    setSendPhonePending(true);
+    setSendPhoneError(false);
+    setTempPhone(phoneNumber);
+    if(user && web3 && !ratio) {
+      if(bearer){
+        await ratioLogin( luv_server + '/ratio/jwt/sms-send', phoneNumber, bearer)
+        .then((res) => {
+          console.log(JSON.parse(res)); 
+          setPhoneId(JSON.parse(res).phoneId);
+          setSendPhonePending(false);
+      })
+      .catch((e) => {
+          console.log(e.message);
+          setSendPhoneError(true);
+          setSendPhoneErrorMessage(e.message);
+          setSendPhonePending(false);
+    })}else{
+        await ratioLogin( luv_server + '/ratio/jwt/sms-send', phoneNumber, bearerValue)
+      .then((res) => {
+          console.log(JSON.parse(res)); 
+          setPhoneId(JSON.parse(res).phoneId);
+          setSendPhonePending(false);
+      })
+      .catch((e) => {
+          console.log(e.message);
+          setSendPhoneError(true);
+          setSendPhoneErrorMessage(e.message);
+          setSendPhonePending(false);
+    })}}
+  }
   
   const initializeRatio = async () => {
     setInitializeRatioError(false);
@@ -218,7 +252,11 @@ export const RatioProvider = ({ children }: { children: React.ReactNode }) => {
       setFreezeUser(user);
       await ratioFirstChallenge( luv_server + '/ratio/wallet' )
       .then((res) => {
-        setBearer(JSON.parse(res).jwt)
+        setBearerValue(JSON.parse(res).jwt);
+        const bearer = JSON.parse(res).jwt;
+        if(JSON.parse(res).phoneNumber){
+          sendPhone(JSON.parse(res).phoneNumber, bearer);
+        }
         console.log(JSON.parse(res));
         setInitializeRatioPending(false);
       })
@@ -243,30 +281,13 @@ export const RatioProvider = ({ children }: { children: React.ReactNode }) => {
   
 
 
-  const sendPhone = async ( phoneNumber: string ) => {
-    setSendPhonePending(true);
-    setSendPhoneError(false);
-    setTempPhone(phoneNumber);
-    if(user && web3 && !ratio) {
-      await ratioLogin( luv_server + '/ratio/jwt/sms-send', phoneNumber )
-      .then((res) => {
-          console.log(JSON.parse(res)); 
-          setPhoneId(JSON.parse(res).phoneId);
-          setSendPhonePending(false);
-      })
-      .catch((e) => {
-          console.log(e.message);
-          setSendPhoneError(true);
-          setSendPhoneErrorMessage(e.message);
-          setSendPhonePending(false);
-    })}
-  }
+
 
   const reSendPhone = async () => {
     setSendPhoneError(false);
     setTempPhone(tempPhone);
     if(user && web3 && !ratio) {
-      await ratioLogin( luv_server + '/ratio/jwt/sms-send', tempPhone )
+      await ratioLogin( luv_server + '/ratio/jwt/sms-send', tempPhone, bearerValue )
       .then((res) => {
           console.log(JSON.parse(res)); 
           setPhoneId(JSON.parse(res).phoneId);
@@ -282,7 +303,7 @@ export const RatioProvider = ({ children }: { children: React.ReactNode }) => {
     console.log(phoneId);
     const response = await fetch(luv_server + '/ratio/jwt/sms-auth', {
       method: 'POST',
-      headers: {'Content-Type': 'application/json', 'Accept': 'application/json', 'Authorization': 'Bearer ' + bearer},
+      headers: {'Content-Type': 'application/json', 'Accept': 'application/json', 'Authorization': 'Bearer ' + bearerValue},
       body: JSON.stringify({phoneId, otp})
     })
     if (!response.ok) {
@@ -390,7 +411,7 @@ export const RatioProvider = ({ children }: { children: React.ReactNode }) => {
 
   const resetRatioState = () => {
     setSignedData('');
-    setBearer('');
+    setBearerValue('');
     setPhoneId('');
     setTriedLogin(false);
     setTempPhone('');
@@ -410,7 +431,7 @@ export const RatioProvider = ({ children }: { children: React.ReactNode }) => {
   return (
     <RatioContext.Provider
       value={{
-        bearer: bearer,
+        bearerValue: bearerValue,
         ratio: ratio,
         userId: userId,
         phoneId: phoneId,

@@ -9,7 +9,7 @@ import { parsePhoneNumber } from "react-phone-number-input";
 
 const Buy = () => {
     const { user } = useUser();
-    const { bearer } = useRatio();
+    const { bearerValue } = useRatio();
     const { ratio } = useRatio();
     const { phoneId } = useRatio();
     const { triedLogin } = useRatio();
@@ -53,7 +53,7 @@ const Buy = () => {
         if(user != freezeUser){
             resetRatioState();
             initializeRatio();
-        }else if(!bearer){
+        }else if(!bearerValue){
             initializeRatio();
         }
     }, []);
@@ -72,7 +72,7 @@ const Buy = () => {
 
     return (
         <div className="buy">
-            {!bearer && triedLogin && !initializeRatioPending && <Button 
+            {!bearerValue && triedLogin && !initializeRatioPending && <Button 
                 className="button" 
                 onClick={()=>{
                     initializeRatio();
@@ -80,15 +80,16 @@ const Buy = () => {
                 >Log In with Ratio
             </Button>}
             {initializeRatioPending && <Spinner size="lg"/>}
-            {bearer && !phoneId && !sendPhonePending && <div>
+            {bearerValue && !phoneId && !sendPhonePending && <div>
                 <form className="form"onSubmit={ async (e) => {
                     e.preventDefault();
                     const phone = '' + userPhone;
                     if(isValidPhoneNumber(phone)){
                         setPhoneValid(true);
-                        const country  = '' + parsePhoneNumber(phone);
+                        const country  = ('' + parsePhoneNumber(phone)?.country).toString();
+                        console.log(country);
                         console.log(phone);
-                        sendPhone(phone);
+                        sendPhone(phone, bearerValue);
                         setUserData(
                             firstName, 
                             middleName, 
