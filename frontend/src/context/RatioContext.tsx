@@ -13,6 +13,7 @@ type RatioContextType = {
   triedLogin: boolean | null,
   freezeUser: string | null,
   userSubmitted: boolean | null,
+  kyc: boolean | null,
   sendOtp: ( otp : string ) => void,
   sendPhone: ( phoneNumber: string, bearer : string | null ) => void,
   reSendPhone: () => void,
@@ -20,15 +21,33 @@ type RatioContextType = {
   resetTriedLogin: () => void,
   resetRatioState: () => void,
   sendUser: () => void,
+  sendKyc: (
+    dateOfBirth: string,
+    idType: string,
+    idNumber: string,
+    line1: string,
+    city: string,
+    state: string,
+    postalCode: string
+    ) => void,
 
-    setUserData: (
-      firstName : string, 
-      middleName : string, 
-      lastName : string, 
-      email : string, 
-      country : string, 
-      phone : string, 
-      acceptedTerms : boolean, ) => void,
+  setUserData: (
+    firstName : string, 
+    middleName : string, 
+    lastName : string, 
+    email : string, 
+    country : string, 
+    phone : string, 
+    acceptedTerms : boolean, ) => void,
+
+  setKycData:(
+    dateOfBirth: string,
+    idType: string,
+    idNumber: string,
+    line1: string,
+    city: string,
+    state: string,
+    postalCode: string, ) => void,
   
   initializeRatioPending: boolean | null,
   initializeRatioError: boolean| null,
@@ -41,6 +60,8 @@ type RatioContextType = {
   sendOtpPending: boolean | null,
   sendOtpError: boolean| null,
   sendOtpErrorMessage: string| null,
+
+  sendKycPending: boolean | null,
 }
 
 // Create a context for user data.
@@ -52,13 +73,23 @@ const RatioContext = createContext<RatioContextType>({
   triedLogin: null,
   freezeUser: null,
   userSubmitted: null,
+  kyc: null,
   sendOtp: ( otp: string ) => {},
   sendPhone: ( phoneNumber: string, bearer : string | null ) => {},
   reSendPhone: () => {},
   initializeRatio: () => {},
   resetTriedLogin: () => {},
   resetRatioState: () => {},
-  sendUser:() =>{},
+  sendUser:() => {},
+  sendKyc: (
+    dateOfBirth: string,
+    idType: string,
+    idNumber: string,
+    line1: string,
+    city: string,
+    state: string,
+    postalCode: string
+  ) => {},
 
   setUserData:(
     firstName : string, 
@@ -67,7 +98,18 @@ const RatioContext = createContext<RatioContextType>({
     email : string, 
     country : string, 
     phone : string, 
-    acceptedTerms : boolean, ) =>{},
+    acceptedTerms : boolean, 
+  ) => {},
+
+  setKycData:(
+    dateOfBirth: string,
+    idType: string,
+    idNumber: string,
+    line1: string,
+    city: string,
+    state: string,
+    postalCode: string, 
+  ) => {},
 
   initializeRatioPending: null,
   initializeRatioError: null,
@@ -80,6 +122,8 @@ const RatioContext = createContext<RatioContextType>({
   sendOtpPending: null,
   sendOtpError: null,
   sendOtpErrorMessage: null,
+
+  sendKycPending: null,
 })
 
 // Custom hook for accessing user context data.
@@ -118,6 +162,16 @@ export const RatioProvider = ({ children }: { children: React.ReactNode }) => {
   const [ phone, setPhone ] = useState('');
   const [ acceptedTerms, setAcceptedTerms ] = useState(false);
   const [ userSubmitted, setUserSubmitted ] = useState(false);
+
+  const [ dateOfBirth, setDateOfBirth ] = useState('');
+  const [ idType, setIdType ] = useState('');
+  const [ idNumber, setIdNumber ] = useState('');
+  const [ line1, setLine1 ] = useState('');
+  const [ city, setCity ] = useState('');
+  const [ state, setState ] = useState('');
+  const [ postalCode, setPostalCode ] = useState('');
+  const [ kyc, setKyc ] = useState<boolean | null>(null);
+
   const [ otp, setOtp ] = useState('');
 
   const [initializeRatioPending, setInitializeRatioPending] = useState(false);
@@ -131,6 +185,8 @@ export const RatioProvider = ({ children }: { children: React.ReactNode }) => {
   const [sendOtpPending, setSendOtpPending] = useState(false);
   const [sendOtpError, setOtpError] = useState(false);
   const [sendOtpErrorMessage, setOtpErrorMessage] = useState<string | null>(null);
+
+  const [sendKycPending, setSendKycPending] = useState(false);
 
   
 
@@ -255,6 +311,9 @@ export const RatioProvider = ({ children }: { children: React.ReactNode }) => {
         setBearerValue(JSON.parse(res).jwt);
         const bearer = JSON.parse(res).jwt;
         if(JSON.parse(res).phoneNumber){
+          if(JSON.parse(res).userId){
+            setUserId(JSON.parse(res).userId);
+          }
           sendPhone(JSON.parse(res).phoneNumber, bearer);
         }
         console.log(JSON.parse(res));
@@ -380,6 +439,8 @@ export const RatioProvider = ({ children }: { children: React.ReactNode }) => {
         } }
   }
 
+
+
   const sendUser = async ()=> {
     console.log("Sending User..." + JSON.stringify({ firstName, middleName, lastName, email, country, phone, acceptedTerms }))
     if(user && web3 && ratio) {
@@ -400,6 +461,87 @@ export const RatioProvider = ({ children }: { children: React.ReactNode }) => {
       .catch((e) => {
           console.log(e.message);
       })
+    }else{
+      console.log('Problem sending user info.')
+    } 
+  }
+
+  const setKycData = (
+    dateOfBirth: string,
+    idType: string,
+    idNumber: string,
+    line1: string,
+    city: string,
+    state: string,
+    postalCode: string
+    ) => {
+      setDateOfBirth(dateOfBirth);
+      setIdType(idType);
+      setIdNumber(idNumber);
+      setLine1(line1);
+      setCity(city);
+      setState(state);
+      setPostalCode(postalCode);
+  }
+
+  const makeKycSend = async (
+    dateOfBirth: string,
+    idType: string,
+    idNumber: string,
+    line1: string,
+    city: string,
+    state: string,
+    postalCode: string
+    ) => {
+      if(ratio){
+      console.log("Kyc: " + JSON.stringify({ dateOfBirth, idType, idNumber, line1, city, state, postalCode }));
+      const response = await fetch(luv_server + '/ratio/jwt/users/' + userId + '/kyc', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json', 'Accept': 'application/json', 'Authorization': 'Bearer ' + ratio},
+        body: JSON.stringify({ dateOfBirth, idType, idNumber, line1, city, state, postalCode })
+      })
+      if (!response.ok) {
+        throw new Error('Data could not be fetched!')
+      } else {
+      console.log(response);
+      return response.json();
+      } }
+  } 
+
+  
+
+  const sendKyc = async (
+    dateOfBirth: string,
+    idType: string,
+    idNumber: string,
+    line1: string,
+    city: string,
+    state: string,
+    postalCode: string
+  )=> {
+    console.log("Sending User..." + JSON.stringify({ dateOfBirth, idType, idNumber, line1, city, state, postalCode }))
+    if(user && web3 && ratio) {
+      console.log("Sent!")
+      setSendKycPending(true);
+      await makeKycSend( 
+        dateOfBirth,
+        idType, 
+        idNumber, 
+        line1, 
+        city, 
+        state, 
+        postalCode )
+      .then((res) => {
+          console.log(JSON.parse(res));
+          setKyc(true);
+          setSendKycPending(false);
+      })
+      .catch((e) => {
+          console.log(e.message);
+          setSendKycPending(false);
+      })
+    }else{
+      console.log('Problem sending kyc info.')
     } 
   }
 
@@ -424,6 +566,18 @@ export const RatioProvider = ({ children }: { children: React.ReactNode }) => {
     setPhone('');
     setAcceptedTerms(false);
     setUserSubmitted(false);
+    setDateOfBirth('');
+    setIdType('');
+    setIdNumber('');
+    setLine1('');
+    setCity('');
+    setState('');
+    setPostalCode('');
+    setUserId(null);
+    setKyc(null);
+    setSendKycPending(false);
+    setSendOtpPending(false);
+    setInitializeRatioPending(false);
   }
 
 
@@ -438,6 +592,7 @@ export const RatioProvider = ({ children }: { children: React.ReactNode }) => {
         triedLogin: triedLogin,
         freezeUser: freezeUser,
         userSubmitted: userSubmitted,
+        kyc: kyc,
         initializeRatioPending: initializeRatioPending,
         initializeRatioError: initializeRatioError,
         initializeRatioErrorMessage: initializeRatioErrorMessage,
@@ -447,11 +602,14 @@ export const RatioProvider = ({ children }: { children: React.ReactNode }) => {
         sendOtpPending: sendOtpPending,
         sendOtpError: sendOtpError,
         sendOtpErrorMessage: sendOtpErrorMessage,
+        sendKycPending: sendKycPending,
         setUserData,
+        setKycData,
         sendPhone,
         reSendPhone,
         sendOtp,
         sendUser,
+        sendKyc,
         initializeRatio,
         resetTriedLogin,
         resetRatioState

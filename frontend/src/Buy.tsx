@@ -12,14 +12,18 @@ const Buy = () => {
     const { bearerValue } = useRatio();
     const { ratio } = useRatio();
     const { phoneId } = useRatio();
+    const { userId } = useRatio();
     const { triedLogin } = useRatio();
     const { freezeUser } = useRatio();
     const { userSubmitted } = useRatio();
+    const { kyc } = useRatio();
     const { sendPhone } = useRatio();
     const { reSendPhone } = useRatio();
     const { sendOtp } = useRatio();
     const { sendUser } = useRatio();
+    const { sendKyc } = useRatio();
     const { setUserData } = useRatio();
+    const { setKycData } = useRatio();
     const { initializeRatio } = useRatio();
     const { resetTriedLogin } = useRatio();
     const { resetRatioState } = useRatio();
@@ -33,6 +37,15 @@ const Buy = () => {
     const [ otp, setOtp ] = useState('');
     const [ testPhone, setTestPhone ] = useState('');
 
+    const [ dateOfBirth, setDateOfBirth ] = useState('');
+    const [ idType, setIdType ] = useState('');
+    const [ idNumber, setIdNumber ] = useState('');
+    const [ line1, setLine1 ] = useState('');
+    const [ city, setCity ] = useState('');
+    const [ state, setState ] = useState('');
+    const [ postalCode, setPostalCode ] = useState('');
+
+
     const { sendPhonePending } = useRatio();
     const { sendPhoneError } = useRatio();
     const { sendPhoneErrorMessage } = useRatio();
@@ -44,6 +57,8 @@ const Buy = () => {
     const { initializeRatioPending } = useRatio();
     const { initializeRatioError } = useRatio();
     const { initializeRatioErrorMessage } = useRatio();
+
+    const { sendKycPending } = useRatio();
 
     
     
@@ -187,7 +202,67 @@ const Buy = () => {
                 <Button onClick={() => {reSendPhone()}}>Resend OTP</Button>
             </div>}
             {sendOtpPending && <Spinner size="lg"/>}
-            {ratio && <h1>Logged in with Ratio</h1>}
+            {sendKycPending && <Spinner size="lg"/>}
+            {ratio && userId && !kyc && !sendKycPending && <div>
+                <form onSubmit={(e) => {
+                    e.preventDefault();
+                    const idType = 'SSN';
+                    console.log(dateOfBirth)
+                    setKycData( dateOfBirth, idType, idNumber, line1, city, state, postalCode );
+                    sendKyc( dateOfBirth, idType, idNumber, line1, city, state, postalCode );
+                }}>
+                    <h1>Verify your Identity</h1>
+                    <label>Date of Birth:</label>
+                    <Input 
+                        type="date" 
+                        required
+                        placeholder="Date of Birth" 
+                        onChange={(e) => setDateOfBirth(e.target.value)} 
+                        value={dateOfBirth}/>
+                    <Input 
+                        type="text" 
+                        required
+                        placeholder="SSN"
+                        minLength={9}
+                        maxLength={9}
+                        onChange={(e) => setIdNumber(e.target.value)} 
+                        value={idNumber}/> 
+                    <Input 
+                        type="text" 
+                        required
+                        placeholder="Street Address" 
+                        onChange={(e) => setLine1(e.target.value)} 
+                        value={line1}/> 
+                    <Input 
+                        type="text" 
+                        required
+                        placeholder="City" 
+                        onChange={(e) => setCity(e.target.value)} 
+                        value={city}/>  
+                    <Input 
+                        type="text" 
+                        required
+                        placeholder="State" 
+                        onChange={(e) => setState(e.target.value)} 
+                        value={state}/>
+                    <Input 
+                        type="text" 
+                        required
+                        placeholder="Postal Code" 
+                        minLength={5}
+                        onChange={(e) => setPostalCode(e.target.value)} 
+                        value={postalCode}/>
+                    <Button 
+                        type='submit' 
+                        className="button"
+                        >Submit
+                    </Button>
+                </form>
+            </div>}
+            {kyc && <div>
+                <h1>Verification Submitted</h1>
+                <h2>You will be recieving an email with your verification status shortly.</h2>
+                </div>}
         </div>);
 }
  
