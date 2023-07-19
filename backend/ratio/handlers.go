@@ -114,6 +114,12 @@ func HandleSMSSend(c *gin.Context) {
 	}
 }
 
+type fullAuthUserResult struct {
+	Jwt    string        `json:"jwt,omitempty"`
+	UserId string        `json:"userId,omitempty"`
+	User   *swagger.User `json:"user,omitempty"`
+}
+
 func HandleSMSAuth(c *gin.Context) {
 	jwtIn := c.GetString(contextJWT)
 	b := swagger.AuthenticateSmsOtpRequest{}
@@ -129,7 +135,12 @@ func HandleSMSAuth(c *gin.Context) {
 		if maybeUser == nil {
 			c.JSON(http.StatusOK, fmt.Sprintf(`{"jwt":"%v"}`, jwtOut))
 		} else {
-			c.JSON(http.StatusOK, fmt.Sprintf(`{"jwt":"%v", "userId":"%v"}`, jwtOut, maybeUser.Id))
+			res := fullAuthUserResult{
+				Jwt:    jwtOut,
+				UserId: maybeUser.Id,
+				User:   maybeUser,
+			}
+			c.JSON(http.StatusOK, res)
 		}
 	}
 }

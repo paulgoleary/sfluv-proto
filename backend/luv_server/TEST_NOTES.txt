@@ -32,8 +32,24 @@ curl --location -g --request POST 'http://localhost:8080/ratio/jwt/sms-auth' \
     "otp": "123456"
 }'
 
-# jwt token here needs to be result of wallet + sms auth calls
+# jwt token after here needs to be result of wallet + sms auth calls
 
+# create a user once full auth has been done
+curl --location -g --request POST 'http://localhost:8080/ratio/jwt/users' \
+--header 'Content-Type: application/json' \
+--header 'Accept: application/json' \
+--header 'Authorization: Bearer XXXX' \
+--data-raw '{
+	"firstName": "Paul ",
+	"middleName": "",
+	"lastName": "OReally",
+	"email": "paul+14155551212@oreally.com",
+	"country": "US",
+	"phone": "+14155551212"
+	"acceptedTerms": true
+}'
+
+# begin kyc process for user
 curl --location -g --request POST 'http://localhost:8080/ratio/jwt/users/USER-ID/kyc' \
 --header 'Content-Type: application/json' \
 --header 'Accept: application/json' \
