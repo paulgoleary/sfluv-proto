@@ -16,6 +16,7 @@ const Buy = () => {
     const { triedLogin } = useRatio();
     const { freezeUser } = useRatio();
     const { userSubmitted } = useRatio();
+    const { userPhoneContext } = useRatio();
     const { kyc } = useRatio();
     const { sendPhone } = useRatio();
     const { reSendPhone } = useRatio();
@@ -86,7 +87,7 @@ const Buy = () => {
 
 
     return (
-        <div className="buy">
+        <div className="buy content">
             {!bearerValue && triedLogin && !initializeRatioPending && <Button 
                 className="button" 
                 onClick={()=>{
@@ -170,6 +171,8 @@ const Buy = () => {
                     sendOtp(otp);
                 }}>
                     <h1>Enter your One Time Passcode</h1>
+                    <h2>Sent to the Phone Number Ending in {!userPhone && <span>{userPhoneContext?.substring(8)}</span>}{userPhone?.substring(8)}</h2>
+                    <br/>
                     <div className="pin">
                         <PinInput 
                             otp 
@@ -259,9 +262,13 @@ const Buy = () => {
                     </Button>
                 </form>
             </div>}
-            {kyc && <div>
+            {(kyc == 'IN_REVIEW') && <div>
                 <h1>Verification Submitted</h1>
                 <h2>You will be recieving an email with your verification status shortly.</h2>
+                </div>}
+            {(kyc == 'APPROVED') && <div>
+                <h1>Verification Approved</h1>
+                <h2>You may now purchase SFLUV.</h2>
                 </div>}
         </div>);
 }

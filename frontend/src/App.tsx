@@ -16,11 +16,13 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { useEffect, useState } from "react"
 import { useWeb3 } from "./context/Web3Context"
 import links from "./links"
+import { useRatio } from "./context/RatioContext"
 
 
 function App() {
   const { web3 } = useWeb3();
   const { user } = useUser();
+  const { userId } = useRatio();
   // const { luv_server } = links();
   // const walletAddress = useUser().user;
   // const walletNetwork = "POLYGON";
@@ -105,7 +107,6 @@ function App() {
       <Router>
         <div className="App">
           <Navbar/>
-            <div className="content">
               <Routes>
                 <Route path="/profile" element={<Profile/>}/>
                 <Route path="/" element={<Home/>}/>
@@ -113,7 +114,6 @@ function App() {
                 <Route path="/test" element={<Test/>}/>
                 {user && <Route path="/buy" element={<Buy/>}/>}
               </Routes>
-            </div>
         </div>
       </Router>
   )

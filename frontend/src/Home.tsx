@@ -14,7 +14,7 @@ const Home = () => {
 
     
     return ( 
-        <div className="home">
+        <div className="home content">
             <h1>{user}</h1>
             {user && <h2>Balance: {balance}</h2>}
             {ratio && <h2>Ratio Logon: <div className="ratioLogon"><div className="ratioLogonText">{ratio}</div></div></h2>}

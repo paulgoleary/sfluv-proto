@@ -13,7 +13,8 @@ type RatioContextType = {
   triedLogin: boolean | null,
   freezeUser: string | null,
   userSubmitted: boolean | null,
-  kyc: boolean | null,
+  userPhoneContext: string | null,
+  kyc: string | null,
   sendOtp: ( otp : string ) => void,
   sendPhone: ( phoneNumber: string, bearer : string | null ) => void,
   reSendPhone: () => void,
@@ -73,6 +74,7 @@ const RatioContext = createContext<RatioContextType>({
   triedLogin: null,
   freezeUser: null,
   userSubmitted: null,
+  userPhoneContext: null,
   kyc: null,
   sendOtp: ( otp: string ) => {},
   sendPhone: ( phoneNumber: string, bearer : string | null ) => {},
@@ -163,6 +165,8 @@ export const RatioProvider = ({ children }: { children: React.ReactNode }) => {
   const [ acceptedTerms, setAcceptedTerms ] = useState(false);
   const [ userSubmitted, setUserSubmitted ] = useState(false);
 
+  const [ userPhoneContext, setUserPhoneContext ] = useState<string | null>(null);
+
   const [ dateOfBirth, setDateOfBirth ] = useState('');
   const [ idType, setIdType ] = useState('');
   const [ idNumber, setIdNumber ] = useState('');
@@ -170,7 +174,7 @@ export const RatioProvider = ({ children }: { children: React.ReactNode }) => {
   const [ city, setCity ] = useState('');
   const [ state, setState ] = useState('');
   const [ postalCode, setPostalCode ] = useState('');
-  const [ kyc, setKyc ] = useState<boolean | null>(null);
+  const [ kyc, setKyc ] = useState<string | null>(null);
 
   const [ otp, setOtp ] = useState('');
 
@@ -315,6 +319,7 @@ export const RatioProvider = ({ children }: { children: React.ReactNode }) => {
             setUserId(JSON.parse(res).userId);
           }
           sendPhone(JSON.parse(res).phoneNumber, bearer);
+          setUserPhoneContext(JSON.parse(res).phoneNumber);
         }
         console.log(JSON.parse(res));
         setInitializeRatioPending(false);
@@ -368,8 +373,7 @@ export const RatioProvider = ({ children }: { children: React.ReactNode }) => {
     if (!response.ok) {
       throw new Error('Data could not be fetched!')
     } else {
-    console.log(response);
-    return response.json();
+      return response.json();
     } 
   }
 
@@ -381,8 +385,17 @@ export const RatioProvider = ({ children }: { children: React.ReactNode }) => {
       setOtpError(false);
       await makeOtpSend(otp)
       .then((res) => {
-          console.log(JSON.parse(res));
-          setRatio(JSON.parse(res).jwt);
+          console.log(res);
+          if(res.jwt){
+            setRatio(res.jwt);
+            console.log(res.jwt);
+          }else{
+            setRatio(JSON.parse(res).jwt)
+            console.log(JSON.parse(res).jwt);
+          }
+          if(res.user && res.user.kyc){
+            {setKyc(res.user.kyc.status)}
+          }
           setSendOtpPending(false);
       })
       .catch((e) => {
@@ -456,7 +469,7 @@ export const RatioProvider = ({ children }: { children: React.ReactNode }) => {
         )
       .then((res) => {
           console.log(JSON.parse(res));
-          setUserId(JSON.parse(res));
+          setUserId(JSON.parse(res).userId);
       })
       .catch((e) => {
           console.log(e.message);
@@ -495,6 +508,7 @@ export const RatioProvider = ({ children }: { children: React.ReactNode }) => {
     ) => {
       if(ratio){
       console.log("Kyc: " + JSON.stringify({ dateOfBirth, idType, idNumber, line1, city, state, postalCode }));
+      console.log('User ID: ' + userId);
       const response = await fetch(luv_server + '/ratio/jwt/users/' + userId + '/kyc', {
         method: 'POST',
         headers: {'Content-Type': 'application/json', 'Accept': 'application/json', 'Authorization': 'Bearer ' + ratio},
@@ -533,7 +547,7 @@ export const RatioProvider = ({ children }: { children: React.ReactNode }) => {
         postalCode )
       .then((res) => {
           console.log(JSON.parse(res));
-          setKyc(true);
+          setKyc('IN_REVIEW');
           setSendKycPending(false);
       })
       .catch((e) => {
@@ -592,6 +606,7 @@ export const RatioProvider = ({ children }: { children: React.ReactNode }) => {
         triedLogin: triedLogin,
         freezeUser: freezeUser,
         userSubmitted: userSubmitted,
+        userPhoneContext: userPhoneContext,
         kyc: kyc,
         initializeRatioPending: initializeRatioPending,
         initializeRatioError: initializeRatioError,

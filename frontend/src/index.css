@@ -70,6 +70,7 @@
 }
 
 
+
 .magicUI .button {
   background-color: #eb6c6c;
   color: white;
@@ -154,4 +155,45 @@
 
 .error {
   color: red;
+}
+
+.profileNav {
+  background-color: white;
+  display: flex;
+  margin-left: auto;
+  margin-right: auto;
+  flex-direction: row;
+  position: sticky;
+  top: 100px;
+  align-items: center;
+  max-width: 500px;
+  text-align: center;
+  font-size: 16px;
+  margin-top: 0;
+}
+
+.profileNav .magic {
+  display: inline;
+  text-align: center;
+  width: 200px;
+  padding-bottom: 20px;
+}
+
+.profileNav .ratio {
+  text-align: center;
+  display: inline;
+  margin-left: auto;
+  width: 200px;
+  padding-bottom: 20px;
+}
+
+.profileNav :hover {
+  color: #eb6c6c;
+}
+
+.profileNav .selected {
+  color: #eb6c6c;
+  border-color: #eb6c6c;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
 }

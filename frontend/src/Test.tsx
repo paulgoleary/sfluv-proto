@@ -11,7 +11,7 @@ const Test = () => {
     const { web3 } = useWeb3();
     const { user } = useUser();
     return (
-        <div>
+        <div className="test content">
             <h1>Test</h1>
             <span>{data}</span>
         </div>
