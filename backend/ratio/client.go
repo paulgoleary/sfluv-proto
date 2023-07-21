@@ -151,3 +151,12 @@ func (c *ratioClient) getUser(userId string) (user swagger.User, err error) {
 	}
 	return
 }
+
+func (c *ratioClient) authUserBanksRequest(ba *swagger.RequestBankLinkRequest, userId string) (resp swagger.RequestBankLinkResponse, err error) {
+	ctx, cancel := context.WithTimeout(context.Background(), c.to)
+	defer cancel()
+	if resp, _, err = c.c.BankApi.V1UsersUserIdBanksrequestLinkPost(ctx, *ba, c.ratioClientId, c.ratioClientSecret, userId); err != nil {
+		handleApiError("V1UsersUserIdBanksrequestLinkPost", err)
+	}
+	return
+}

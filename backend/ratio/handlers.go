@@ -178,3 +178,20 @@ func HandleUserKyc(c *gin.Context) {
 		c.JSON(http.StatusOK, fmt.Sprintf(`{"userId":"%v"}`, user.Id))
 	}
 }
+
+func HandleUserBanksRequest(c *gin.Context) {
+	jwtIn := c.GetString(contextJWT)
+	b := swagger.RequestBankLinkRequest{}
+	if err := c.BindJSON(&b); err != nil {
+		c.AbortWithError(http.StatusBadRequest, err)
+		return
+	}
+
+	client := getDefaultClient(jwtIn)
+	userId, _ := c.Params.Get("userId")
+	if resp, err := client.authUserBanksRequest(&b, userId); err != nil {
+		c.AbortWithStatus(http.StatusInternalServerError)
+	} else {
+		c.JSON(http.StatusOK, fmt.Sprintf(`{"linkToken":"%v"}`, resp.LinkToken))
+	}
+}

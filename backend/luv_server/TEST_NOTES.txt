@@ -63,3 +63,13 @@ curl --location -g --request POST 'http://localhost:8080/ratio/jwt/users/USER-ID
     "state":       "CA",
     "postalCode":  "94131"
 }'
+
+# begin Plaid bank linking for user
+# NOTE for current testing purposes, do not specify a redirectUri
+curl --location -g --request POST 'http://localhost:8080/ratio/jwt/users/USER-ID/banks/request' \
+--header 'Content-Type: application/json' \
+--header 'Accept: application/json' \
+--header 'Authorization: Bearer XXXX' \
+--data-raw '{
+    "redirectUri": ""
+}'

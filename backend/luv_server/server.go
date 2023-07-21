@@ -48,6 +48,8 @@ func setupRouter() *gin.Engine {
 	ratioJwt.POST("users", ratio.HandleCreateUser)
 	ratioJwt.POST("users/:userId/kyc", ratio.HandleUserKyc)
 
+	ratioJwt.POST("users/:userId/banks/request", ratio.HandleUserBanksRequest)
+
 	return r
 }
 
