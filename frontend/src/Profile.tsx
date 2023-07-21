@@ -9,11 +9,12 @@ const Profile = () => {
     const [ ratioSelected, setRatioSelected ] = useState(false);
     const [ magicWalletSelected, setMagicWalletSelected ] = useState(true);
 
-    const { userId } = useRatio();
+    const { firstName } = useRatio();
+
 
     return (
     <div className="profile">
-        { userId && 
+        { firstName && 
             <div className="profileNav">
                 {magicWalletSelected && <button 
                     onClick={(e) => {
@@ -49,7 +50,7 @@ const Profile = () => {
                 </button>}
             </div>
         }
-        <div className="content">
+        <div>
             { ratioSelected && <RatioProfile/> }
             { magicWalletSelected && <MagicWallet/> }
         </div>

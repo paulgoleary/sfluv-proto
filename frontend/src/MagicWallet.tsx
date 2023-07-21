@@ -39,7 +39,7 @@ const MagicWallet = () => {
 
 
   return ( 
-    <div>
+    <div className="content">
       <VStack className="magicUI" justifyContent="center" alignItems="center" minH="30vh" maxH="100vh">
       {!user ? (<Button className="button" onClick={() => {handleConnect()}}>Log In</Button>
         ) : (

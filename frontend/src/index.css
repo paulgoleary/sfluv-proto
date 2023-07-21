@@ -64,7 +64,7 @@
 }
 
 .content {
-  max-width: 600px;
+  max-width: 65vw;
   margin: 40px auto;
   padding: 20px;
 }
@@ -196,4 +196,46 @@
   border-color: #eb6c6c;
   border-bottom-style: solid;
   border-bottom-width: 2px;
+}
+
+.profileSection {
+  margin: 40px auto;
+  max-width: 60vw;
+}
+
+
+.profileSection h2 {
+  font-size: 25px;
+  font-weight: bold;
+}
+
+.profileItem {
+  border-bottom-color:#dddddd;
+  border-bottom-style: solid;
+  border-bottom-width: 1px;
+}
+.lastProfileItem, .profileItem {
+  column-count: 2;
+  margin-left: 0;
+  padding-left: 0;
+
+}
+
+.profileItemCategory {
+  width: auto;
+  border-right-color:#dddddd;
+  border-right-style: solid;
+  border-right-width: 1px;
+  padding-top: 15px;
+  padding-bottom: 15px;
+
+}
+
+.profileItemValue {
+  text-align: left;
+  padding-top: 15px;
+  padding-bottom: 15px;
+}
+.profileItemValue input{
+  width: 25vw;
 }

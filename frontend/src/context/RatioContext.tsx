@@ -15,6 +15,12 @@ type RatioContextType = {
   userSubmitted: boolean | null,
   userPhoneContext: string | null,
   kyc: string | null,
+  firstName: string | null,
+  middleName: string | null,
+  lastName: string | null,
+  email: string | null,
+  country: string | null,
+  phone: string | null,
   sendOtp: ( otp : string ) => void,
   sendPhone: ( phoneNumber: string, bearer : string | null ) => void,
   reSendPhone: () => void,
@@ -76,6 +82,12 @@ const RatioContext = createContext<RatioContextType>({
   userSubmitted: null,
   userPhoneContext: null,
   kyc: null,
+  firstName: null,
+  middleName: null,
+  lastName: null,
+  email: null,
+  country: null,
+  phone: null,
   sendOtp: ( otp: string ) => {},
   sendPhone: ( phoneNumber: string, bearer : string | null ) => {},
   reSendPhone: () => {},
@@ -394,7 +406,14 @@ export const RatioProvider = ({ children }: { children: React.ReactNode }) => {
             console.log(JSON.parse(res).jwt);
           }
           if(res.user && res.user.kyc){
-            {setKyc(res.user.kyc.status)}
+            setKyc(res.user.kyc.status);
+            setFirstName(res.user.firstName);
+            setMiddleName(res.user.middleName);
+            setLastName(res.user.lastName);
+            setPhone(res.user.phone);
+            setEmail(res.user.email);
+            setCountry(res.user.country);
+            setUserId(res.user.id);
           }
           setSendOtpPending(false);
       })
@@ -608,6 +627,12 @@ export const RatioProvider = ({ children }: { children: React.ReactNode }) => {
         userSubmitted: userSubmitted,
         userPhoneContext: userPhoneContext,
         kyc: kyc,
+        firstName: firstName,
+        middleName: middleName,
+        lastName: lastName,
+        email: email,
+        country: country,
+        phone: phone,
         initializeRatioPending: initializeRatioPending,
         initializeRatioError: initializeRatioError,
         initializeRatioErrorMessage: initializeRatioErrorMessage,
