@@ -7,7 +7,7 @@ import "../src/SFLUVv1.sol";
 
 contract SFLUVv1Test is Test {
     MockCoin public mockCoin;
-    SFLUVv1 public testCoin;
+    SFLUVv1 public testLUVCoin;
 
     StdCheats cheats;
 
@@ -18,7 +18,7 @@ contract SFLUVv1Test is Test {
 
     function setUp() public {
         mockCoin = new MockCoin();
-        testCoin = new SFLUVv1(mockCoin);
+        testLUVCoin = new SFLUVv1(mockCoin);
 
         cheats = StdCheats(HEVM_ADDRESS);
 
@@ -32,35 +32,40 @@ contract SFLUVv1Test is Test {
         uint checkBalance = mockCoin.balanceOf(payer);
         assertEq(checkBalance, 100 * oneEther);
 
-        assertTrue(testCoin.owner() == address(this));
-        assertFalse(testCoin.hasRole(testCoin.MINTER_ROLE(), testCoin.owner()));
-        testCoin.grantRole(testCoin.MINTER_ROLE(), testCoin.owner());
-        assertTrue(testCoin.hasRole(testCoin.MINTER_ROLE(), testCoin.owner()));
+        // contract owner has DEFAULT_ADMIN_ROLE by default
+        assertTrue(testLUVCoin.owner() == address(this));
+        assertTrue(testLUVCoin.hasRole(testLUVCoin.DEFAULT_ADMIN_ROLE(), testLUVCoin.owner()));
 
+        // contract owner does *not* have minter role by default
+        assertFalse(testLUVCoin.hasRole(testLUVCoin.MINTER_ROLE(), testLUVCoin.owner()));
+        testLUVCoin.grantRole(testLUVCoin.MINTER_ROLE(), testLUVCoin.owner());
+        assertTrue(testLUVCoin.hasRole(testLUVCoin.MINTER_ROLE(), testLUVCoin.owner()));
+
+        // unfunded (default) account cannot wrap underlying coin w/o balance
         vm.expectRevert("ERC20: insufficient allowance");
-        testCoin.depositFor(payer, 100 * oneEther);
+        testLUVCoin.depositFor(payer, 100 * oneEther);
 
         // allow the payer to wrap (mint) SFLUV
-        testCoin.grantRole(testCoin.MINTER_ROLE(), payer);
+        testLUVCoin.grantRole(testLUVCoin.MINTER_ROLE(), payer);
 
         vm.startPrank(payer);
-        mockCoin.approve(address(testCoin), 100 * oneEther);
-        testCoin.depositFor(payer, 100 * oneEther);
+        mockCoin.approve(address(testLUVCoin), 100 * oneEther);
+        testLUVCoin.depositFor(payer, 100 * oneEther);
         vm.stopPrank();
 
-        checkBalance = testCoin.balanceOf(payer); // payer now has luv
+        checkBalance = testLUVCoin.balanceOf(payer); // payer now has luv
         assertEq(checkBalance, 100 * oneEther);
 
-        checkBalance = mockCoin.balanceOf(address(testCoin)); // wrapper contract is holding base coin
+        checkBalance = mockCoin.balanceOf(address(testLUVCoin)); // wrapper contract is holding base coin
         assertEq(checkBalance, 100 * oneEther);
 
         vm.prank(payer);
-        testCoin.transfer(payee, 50 * oneEther); // spread some luv
+        testLUVCoin.transfer(payee, 50 * oneEther); // spread some luv
 
-        checkBalance = testCoin.balanceOf(payer);
+        checkBalance = testLUVCoin.balanceOf(payer);
         assertEq(checkBalance, 50 * oneEther, "payer gave some luv");
 
-        checkBalance = testCoin.balanceOf(payee); // wrapper contract is holding base coin
+        checkBalance = testLUVCoin.balanceOf(payee); // wrapper contract is holding base coin
         assertEq(checkBalance, 50 * oneEther, "payee has some luv");
     }
 }

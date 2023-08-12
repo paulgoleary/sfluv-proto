@@ -1,4 +1,4 @@
-package local_luv_proto
+package chain
 
 import (
 	"crypto/ecdsa"
@@ -15,6 +15,9 @@ import (
 	"strings"
 )
 
+var MockMumbaiAddr = ethgo.HexToAddress("0x834F9b26Cc7C806c6F9f31697C4B1C20A1bB83b6")
+var LuvMumbaiAddr = ethgo.HexToAddress("0xdcF0C250a68B835cb0379381F28F45732746F177")
+
 type jsonBytecode struct {
 	Object string `json:"object"`
 }
@@ -29,7 +32,7 @@ func getBuildArtifact(name string) (art *compiler.Artifact, err error) {
 		name = name + ".json"
 	}
 	var jsonBytes []byte
-	if jsonBytes, err = os.ReadFile(filepath.Join("../contracts/out", name)); err != nil {
+	if jsonBytes, err = os.ReadFile(filepath.Join("../../contracts/out", name)); err != nil {
 		return
 	}
 	var jart jsonArtifact
@@ -48,21 +51,21 @@ func getBuildArtifact(name string) (art *compiler.Artifact, err error) {
 	return
 }
 
-type ecdsaKey struct {
-	k *ecdsa.PrivateKey
+type EcdsaKey struct {
+	SK *ecdsa.PrivateKey
 }
 
-func (e *ecdsaKey) Address() ethgo.Address {
-	return ethgo.Address(crypto.PubKeyToAddress(&e.k.PublicKey))
+func (e *EcdsaKey) Address() ethgo.Address {
+	return ethgo.Address(crypto.PubKeyToAddress(&e.SK.PublicKey))
 }
 
-func (e *ecdsaKey) Sign(hash []byte) ([]byte, error) {
-	return crypto.Sign(e.k, hash)
+func (e *EcdsaKey) Sign(hash []byte) ([]byte, error) {
+	return crypto.Sign(e.SK, hash)
 }
 
-var _ ethgo.Key = &ecdsaKey{}
+var _ ethgo.Key = &EcdsaKey{}
 
-func loadArtifact(ec *jsonrpc.Client, name string, withKey ethgo.Key, addr ethgo.Address) (loaded *contract.Contract, err error) {
+func LoadContract(ec *jsonrpc.Client, name string, withKey ethgo.Key, addr ethgo.Address) (loaded *contract.Contract, err error) {
 	var art *compiler.Artifact
 	if art, err = getBuildArtifact(name); err != nil {
 		return
@@ -80,7 +83,15 @@ func loadArtifact(ec *jsonrpc.Client, name string, withKey ethgo.Key, addr ethgo
 	return
 }
 
-func deployArtifact(ec *jsonrpc.Client, name string, withKey ethgo.Key, args []interface{}) (deployed *contract.Contract, addr ethgo.Address, err error) {
+func LoadABI(name string) (loaded *abi.ABI, err error) {
+	var art *compiler.Artifact
+	if art, err = getBuildArtifact(name); err != nil {
+		return
+	}
+	return abi.NewABI(art.Abi)
+}
+
+func deployContract(ec *jsonrpc.Client, name string, withKey ethgo.Key, args []interface{}) (deployed *contract.Contract, addr ethgo.Address, err error) {
 	var art *compiler.Artifact
 	if art, err = getBuildArtifact(name); err != nil {
 		return
