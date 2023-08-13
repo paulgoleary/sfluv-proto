@@ -4,9 +4,11 @@ import (
 	"context"
 	"github.com/dgraph-io/badger/v3"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/ethereum/go-ethereum/rpc"
 	"github.com/paulgoleary/local-luv-proto/chain"
+	"github.com/paulgoleary/local-luv-proto/crypto"
 	"github.com/stackup-wallet/stackup-bundler/pkg/client"
 	"github.com/stackup-wallet/stackup-bundler/pkg/gas"
 	"github.com/stackup-wallet/stackup-bundler/pkg/mempool"
@@ -14,6 +16,9 @@ import (
 	"github.com/stackup-wallet/stackup-bundler/pkg/modules/paymaster"
 	"github.com/stretchr/testify/require"
 	"github.com/umbracle/ethgo"
+	"github.com/umbracle/ethgo/contract"
+	"github.com/umbracle/ethgo/jsonrpc"
+	"github.com/umbracle/ethgo/wallet"
 	"math/big"
 	"os"
 	"testing"
@@ -28,8 +33,8 @@ func TestStackupClient(t *testing.T) {
 		MaxVerificationGas      *big.Int
 		MaxOpsForUnstakedSender int
 	}{
-		SupportedEntryPoints:    []common.Address{common.HexToAddress("0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789")},
-		EthClientUrl:            os.Getenv("NETWORK_URL"),
+		SupportedEntryPoints:    []common.Address{common.Address(DefaultEntryPoint)},
+		EthClientUrl:            os.Getenv("CHAIN_URL"),
 		MaxBatchGasLimit:        big.NewInt(10_000_000), // TODO: value?
 		MaxVerificationGas:      big.NewInt(10_000_000), // TODO: value?
 		MaxOpsForUnstakedSender: 1,
@@ -76,27 +81,80 @@ func TestStackupClient(t *testing.T) {
 		paymaster.IncOpsSeen(),
 	)
 
-	op, err := UserOpMint(ethgo.HexToAddress("0x32A629dE3fb4549EB2B204d37eb9C8CFb0b9AdCf"),
+	op, err := UserOpMint(
+		ethgo.HexToAddress("0x32A629dE3fb4549EB2B204d37eb9C8CFb0b9AdCf"),
+		ethgo.HexToAddress("0x054dF6203225bB58d9243eBf9DAd55608a436042"),
 		chain.MockMumbaiAddr,
 		ethgo.HexToAddress("0x32A629dE3fb4549EB2B204d37eb9C8CFb0b9AdCf"),
 		ethgo.Ether(100))
-
 	require.NoError(t, err)
 
-	ei := gas.EstimateInput{
-		Rpc:         rpc,
-		EntryPoint:  conf.SupportedEntryPoints[0],
-		Op:          op,
-		Ov:          ov,
-		ChainID:     chainId,
-		MaxGasLimit: big.NewInt(1_000_000),
-	}
-	vgas, cgas, err := gas.EstimateGas(&ei)
+	sk, err := crypto.SKFromHex(os.Getenv("CHAIN_SK"))
 	require.NoError(t, err)
-	require.True(t, vgas > 0)
-	require.True(t, cgas > 0)
+	k := &chain.EcdsaKey{SK: sk}
 
-	//res, err := c.SendUserOperation(MockUserOpData, DefaultEntryPoint)
+	// don't *actually* need to sign this correctly afaik but wth ...
+	opHash := op.GetUserOpHash(common.Address(DefaultEntryPoint), chainId)
+	opEthHash := crypto.EthSignedMessageHash(opHash.Bytes())
+
+	sig, err := crypto.Sign(k.SK, opEthHash)
+	require.NoError(t, err)
+
+	checkRecover, err := wallet.Ecrecover(opEthHash, sig)
+	require.NoError(t, err)
+	require.Equal(t, k.Address(), checkRecover)
+
+	// ETH magic ...?
+	sig[64] += 27
+	op.Signature = sig
+
+	opMap, _ := op.ToMap()
+
+	//resEst, err := c.EstimateUserOperationGas(opMap, DefaultEntryPoint.String())
 	//require.NoError(t, err)
-	//_ = res
+	//_ = resEst
+
+	ec, err := jsonrpc.NewClient(os.Getenv("CHAIN_URL"))
+	require.NoError(t, err)
+
+	ep, err := chain.LoadContract(ec, "IEntryPoint.sol/IEntryPoint", k, DefaultEntryPoint)
+	require.NoError(t, err)
+	userOpHashRes, err := ep.Call("getUserOpHash", ethgo.Latest, opMap)
+	require.NoError(t, err)
+	checkHash, ok := userOpHashRes["0"].([32]byte)
+	require.True(t, ok)
+	println(hexutil.Encode(checkHash[:]))
+	println(opHash.String())
+
+	resSend, err := c.SendUserOperation(opMap, DefaultEntryPoint.String())
+	require.NoError(t, err)
+	_ = resSend
+
+}
+
+func TestStakeManager(t *testing.T) {
+
+	ec, err := jsonrpc.NewClient(os.Getenv("CHAIN_URL"))
+	require.NoError(t, err)
+
+	sk, err := crypto.SKFromHex(os.Getenv("CHAIN_SK"))
+	require.NoError(t, err)
+	k := &chain.EcdsaKey{SK: sk}
+
+	ep, err := chain.LoadContract(ec, "IEntryPoint.sol/IEntryPoint", k, DefaultEntryPoint)
+	require.NoError(t, err)
+
+	tx, txErr := ep.Txn("depositTo", ethgo.HexToAddress("0x054dF6203225bB58d9243eBf9DAd55608a436042"))
+	require.NoError(t, txErr)
+	tx.WithOpts(&contract.TxnOpts{Value: ethgo.Ether(1)})
+
+	err = chain.TxnDoWait(tx, nil)
+	require.NoError(t, err)
+
+	res, err := ep.Call("balanceOf", ethgo.Latest, ethgo.HexToAddress("0x054dF6203225bB58d9243eBf9DAd55608a436042"))
+	require.NoError(t, err)
+	checkBalance, ok := res["0"].(*big.Int)
+	require.True(t, ok)
+	require.True(t, checkBalance.Cmp(big.NewInt(0)) > 0)
+
 }

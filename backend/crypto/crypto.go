@@ -1,6 +1,7 @@
 package crypto
 
 import (
+	"bytes"
 	"crypto/ecdsa"
 	"crypto/elliptic"
 	"encoding/hex"
@@ -63,4 +64,21 @@ func RandSK() (ret *ecdsa.PrivateKey, err error) {
 		return
 	}
 	return SKFromInt(sk.D)
+}
+
+//     function toEthSignedMessageHash(bytes32 hash) internal pure returns (bytes32 message) {
+//        // 32 is the length in bytes of hash,
+//        // enforced by the type signature above
+//        /// @solidity memory-safe-assembly
+//        assembly {
+//            mstore(0x00, "\x19Ethereum Signed Message:\n32")
+//            mstore(0x1c, hash)
+//            message := keccak256(0x00, 0x3c)
+//        }
+//    }
+
+var MagicEthBytes = []byte("\x19Ethereum Signed Message:\n32")
+
+func EthSignedMessageHash(hash []byte) []byte {
+	return ethgo.Keccak256(append(bytes.Clone(MagicEthBytes), hash...))
 }
