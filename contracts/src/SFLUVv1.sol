@@ -1,4 +1,4 @@
-pragma solidity ^0.8.0;
+pragma solidity <=0.8.19;
 
 import "../lib/openzeppelin-contracts/contracts/token/ERC20/extensions/ERC20Wrapper.sol";
 import "../lib/openzeppelin-contracts/contracts/token/ERC20/extensions/draft-ERC20Permit.sol";
@@ -10,12 +10,12 @@ contract SFLUVv1 is ERC20Wrapper, ERC20Permit, AccessControlDefaultAdminRules {
 
     constructor(IERC20 underlyingToken)
         ERC20Wrapper(underlyingToken)
-        ERC20Permit("SFLUV V1")
-        ERC20("SFLUV V1", "SFLUV")
+        ERC20Permit("SFLUV V1.1")
+        ERC20("SFLUV V1.1", "SFLUV")
         AccessControlDefaultAdminRules(initialDelay, msg.sender) {}
 
     function decimals() public pure override(ERC20, ERC20Wrapper) returns (uint8) {
-        return 18;
+        return 6; // could get this dynamically from the underlying token, but the current target only is USDC so...
     }
 
     // this role allows the holder to mint (wrap) underlying USDC into SFLUV

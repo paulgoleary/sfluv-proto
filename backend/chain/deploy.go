@@ -15,8 +15,10 @@ import (
 	"strings"
 )
 
-var MockMumbaiAddr = ethgo.HexToAddress("0x834F9b26Cc7C806c6F9f31697C4B1C20A1bB83b6")
-var LuvMumbaiAddr = ethgo.HexToAddress("0xdcF0C250a68B835cb0379381F28F45732746F177")
+// 0x80FD6A0a454045d3E24B5BAa19b9066ae01a0b09
+// 0x39C716D8c6E4D3B45Bc9e60f5C12378433668588
+var MockMumbaiAddr = ethgo.HexToAddress("0x80FD6A0a454045d3E24B5BAa19b9066ae01a0b09")
+var LuvMumbaiAddr = ethgo.HexToAddress("0x39C716D8c6E4D3B45Bc9e60f5C12378433668588")
 
 type jsonBytecode struct {
 	Object string `json:"object"`

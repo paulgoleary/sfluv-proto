@@ -2,14 +2,15 @@ package erc4337
 
 import (
 	"context"
+	"fmt"
 	"github.com/dgraph-io/badger/v3"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/ethereum/go-ethereum/rpc"
 	"github.com/paulgoleary/local-luv-proto/chain"
 	"github.com/paulgoleary/local-luv-proto/crypto"
 	"github.com/stackup-wallet/stackup-bundler/pkg/client"
+	"github.com/stackup-wallet/stackup-bundler/pkg/entrypoint/reverts"
 	"github.com/stackup-wallet/stackup-bundler/pkg/gas"
 	"github.com/stackup-wallet/stackup-bundler/pkg/mempool"
 	"github.com/stackup-wallet/stackup-bundler/pkg/modules/checks"
@@ -18,11 +19,26 @@ import (
 	"github.com/umbracle/ethgo"
 	"github.com/umbracle/ethgo/contract"
 	"github.com/umbracle/ethgo/jsonrpc"
-	"github.com/umbracle/ethgo/wallet"
+	"github.com/umbracle/ethgo/jsonrpc/codec"
 	"math/big"
 	"os"
+	"strings"
 	"testing"
 )
+
+type errThunk struct {
+	cerr *codec.ErrorObject
+}
+
+func (e errThunk) Error() string {
+	return e.cerr.Error()
+}
+
+func (e errThunk) ErrorData() interface{} {
+	return e.cerr.Data
+}
+
+var _ rpc.DataError = &errThunk{}
 
 func TestStackupClient(t *testing.T) {
 
@@ -81,54 +97,68 @@ func TestStackupClient(t *testing.T) {
 		paymaster.IncOpsSeen(),
 	)
 
-	op, err := UserOpMint(
-		ethgo.HexToAddress("0x32A629dE3fb4549EB2B204d37eb9C8CFb0b9AdCf"),
-		ethgo.HexToAddress("0x054dF6203225bB58d9243eBf9DAd55608a436042"),
-		chain.MockMumbaiAddr,
-		ethgo.HexToAddress("0x32A629dE3fb4549EB2B204d37eb9C8CFb0b9AdCf"),
-		ethgo.Ether(100))
-	require.NoError(t, err)
-
 	sk, err := crypto.SKFromHex(os.Getenv("CHAIN_SK"))
 	require.NoError(t, err)
 	k := &chain.EcdsaKey{SK: sk}
-
-	// don't *actually* need to sign this correctly afaik but wth ...
-	opHash := op.GetUserOpHash(common.Address(DefaultEntryPoint), chainId)
-	opEthHash := crypto.EthSignedMessageHash(opHash.Bytes())
-
-	sig, err := crypto.Sign(k.SK, opEthHash)
-	require.NoError(t, err)
-
-	checkRecover, err := wallet.Ecrecover(opEthHash, sig)
-	require.NoError(t, err)
-	require.Equal(t, k.Address(), checkRecover)
-
-	// ETH magic ...?
-	sig[64] += 27
-	op.Signature = sig
-
-	opMap, _ := op.ToMap()
-
-	//resEst, err := c.EstimateUserOperationGas(opMap, DefaultEntryPoint.String())
-	//require.NoError(t, err)
-	//_ = resEst
 
 	ec, err := jsonrpc.NewClient(os.Getenv("CHAIN_URL"))
 	require.NoError(t, err)
 
 	ep, err := chain.LoadContract(ec, "IEntryPoint.sol/IEntryPoint", k, DefaultEntryPoint)
 	require.NoError(t, err)
-	userOpHashRes, err := ep.Call("getUserOpHash", ethgo.Latest, opMap)
-	require.NoError(t, err)
-	checkHash, ok := userOpHashRes["0"].([32]byte)
-	require.True(t, ok)
-	println(hexutil.Encode(checkHash[:]))
-	println(opHash.String())
 
-	resSend, err := c.SendUserOperation(opMap, DefaultEntryPoint.String())
+	res, err := ep.Call("getNonce", ethgo.Latest,
+		ethgo.HexToAddress("0x054dF6203225bB58d9243eBf9DAd55608a436042"), big.NewInt(0))
 	require.NoError(t, err)
-	_ = resSend
+	nonce, ok := res["nonce"].(*big.Int)
+	require.True(t, ok)
+
+	op, err := UserOpApprove(
+		nonce,
+		ethgo.HexToAddress("0x32A629dE3fb4549EB2B204d37eb9C8CFb0b9AdCf"),
+		ethgo.HexToAddress("0x054dF6203225bB58d9243eBf9DAd55608a436042"),
+		chain.MockMumbaiAddr,
+		chain.LuvMumbaiAddr,
+		ethgo.Ether(100))
+	require.NoError(t, err)
+
+	op, err = UserOpSeal(op, chainId, k)
+	require.NoError(t, err)
+
+	opMap, _ := op.ToMap()
+
+	// 50_819, 314_309, 314_309, 36_733
+	//resEst, err := c.EstimateUserOperationGas(opMap, DefaultEntryPoint.String())
+	//require.NoError(t, err)
+	//fmt.Printf("%v, %v, %v, %v", resEst.PreVerificationGas, resEst.VerificationGas, resEst.VerificationGasLimit, resEst.CallGasLimit)
+
+	handleSimulationError := func(err error) {
+		if cerr, ok := err.(*codec.ErrorObject); ok {
+			et := errThunk{cerr: cerr}
+			if etData, ok := et.ErrorData().(string); ok {
+				if strings.HasPrefix(etData, "0xe0cff05f") {
+					result, _ := reverts.NewValidationResult(et)
+					println(fmt.Sprintf("stake: %v, sig failed: %v", result.SenderInfo.Stake.Int64(), result.ReturnInfo.SigFailed))
+				} else {
+					revert, _ := reverts.NewFailedOp(et)
+					println(revert.Reason)
+				}
+			}
+		}
+	}
+
+	res, err = ep.Call("simulateValidation", ethgo.Latest, opMap)
+	if err != nil {
+		handleSimulationError(err)
+	}
+
+	//     function handleOps(UserOperation[] calldata ops, address payable beneficiary) external;
+	err = chain.TxnDoWait(ep.Txn("handleOps", []map[string]any{opMap}, k.Address()))
+	require.NoError(t, err)
+
+	//resSend, err := c.SendUserOperation(opMap, DefaultEntryPoint.String())
+	//require.NoError(t, err)
+	//_ = resSend
 
 }
 

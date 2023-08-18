@@ -1,0 +1,12 @@
+
+forge create --rpc-url <your_rpc_url> \
+    --constructor-args "ForgeUSD" "FUSD" 18 1000000000000000000000 \
+    --private-key <your_private_key> \
+    --etherscan-api-key <your_etherscan_api_key> \
+    --verify \
+    src/MyToken.sol:MyToken
+
+forge verify-contract --verifier-url https://api.polygonscan.com/api/ 0x58a2993A618Afee681DE23dECBCF535A58A080BA src/SFLUVv1.sol:SFLUVv1
+
+# works with config in foundry.toml?
+forge verify-contract --chain polygon 0x58a2993A618Afee681DE23dECBCF535A58A080BA src/SFLUVv1.sol:SFLUVv1
