@@ -23,7 +23,8 @@ func makeExecute(toAddr ethgo.Address, value *big.Int, m *abi.Method, args ...in
 	return
 }
 
-var abiMC, _ = chain.LoadABI("MockCoin.sol/MockCoin")
+var mintMethod, _ = abi.NewMethod("function mint(address sender, uint256 amount)")
+var approveMethod, _ = abi.NewMethod("function approve(address spender, uint256 amount) external returns (bool)")
 
 var DefaultInitCodeGas = big.NewInt(300_000)
 var DefaultMintGasLimit = big.NewInt(200_000)
@@ -33,7 +34,7 @@ func makeBaseOp(nonce *big.Int, owner, sender ethgo.Address, callGasLimit, maxFe
 	var initCode []byte
 
 	if nonce.Int64() == 0 {
-		if initCode, err = MakeInitCode(DefaultAccountFactory, owner, big.NewInt(1)); err != nil {
+		if initCode, err = MakeDefaultInitCode(owner); err != nil {
 			return
 		}
 	}
@@ -57,7 +58,6 @@ func makeBaseOp(nonce *big.Int, owner, sender ethgo.Address, callGasLimit, maxFe
 }
 
 func UserOpMint(nonce *big.Int, owner, sender, mintTargetAddr, toAddr ethgo.Address, amt *big.Int) (*userop.UserOperation, error) {
-	mintMethod := abiMC.GetMethod("mint")
 	if callData, err := makeExecute(mintTargetAddr, big.NewInt(0), mintMethod, toAddr, amt); err != nil {
 		return nil, err
 	} else {
@@ -66,7 +66,6 @@ func UserOpMint(nonce *big.Int, owner, sender, mintTargetAddr, toAddr ethgo.Addr
 }
 
 func UserOpApprove(nonce *big.Int, owner, sender, mintAddr, spender ethgo.Address, amt *big.Int) (*userop.UserOperation, error) {
-	approveMethod := abiMC.GetMethod("approve")
 	if callData, err := makeExecute(mintAddr, big.NewInt(0), approveMethod, spender, amt); err != nil {
 		return nil, err
 	} else {

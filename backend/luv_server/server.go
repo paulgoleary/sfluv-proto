@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/paulgoleary/local-luv-proto/ratio"
+	"github.com/paulgoleary/local-luv-proto/erc4337"
 	"github.com/paulgoleary/local-luv-proto/util"
 	"net/http"
 
@@ -36,19 +36,14 @@ func setupRouter() *gin.Engine {
 		c.String(http.StatusOK, "ok")
 	})
 
-	ratioGroup := r.Group("ratio")
-	ratioGroup.POST("sessions", ratio.HandleNewSession)
-	ratioGroup.POST("wallet", ratio.HandleSessionWallet)
+	hc := erc4337.HandlerContext{}
 
-	ratioJwt := ratioGroup.Group("jwt")
-	ratioJwt.Use(ratio.JwtAuthMiddleware())
-	ratioJwt.POST("sms-send", ratio.HandleSMSSend)
-	ratioJwt.POST("sms-auth", ratio.HandleSMSAuth)
+	// GET? erc4337/userop/approve?target=XXXX&spender=YYYY&amount=10000&owner=ZZZZ
+	// function approve(address spender, uint256 amount) external returns (bool)
 
-	ratioJwt.POST("users", ratio.HandleCreateUser)
-	ratioJwt.POST("users/:userId/kyc", ratio.HandleUserKyc)
-
-	ratioJwt.POST("users/:userId/banks/request", ratio.HandleUserBanksRequest)
+	// GET? erc4337/userop/depositFor
+	erc4337Group := r.Group("erc4337")
+	erc4337Group.GET("userop/approve", hc.HandleUserOpApprove)
 
 	return r
 }

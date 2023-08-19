@@ -8,7 +8,6 @@ import (
 	"github.com/umbracle/ethgo"
 	"github.com/umbracle/ethgo/jsonrpc"
 	"github.com/umbracle/ethgo/jsonrpc/codec"
-	"math/big"
 	"os"
 	"testing"
 )
@@ -19,7 +18,7 @@ func TestInitCode(t *testing.T) {
 	require.NoError(t, err)
 	k := &chain.EcdsaKey{SK: sk}
 
-	testInitCode, err := MakeInitCode(DefaultAccountFactory, k.Address(), big.NewInt(1))
+	testInitCode, err := MakeDefaultInitCode(k.Address())
 	require.NoError(t, err)
 	require.Equal(t, 88, len(testInitCode))
 
@@ -40,7 +39,7 @@ func TestGetSenderAddress(t *testing.T) {
 	ep, err := chain.LoadContract(ec, "IEntryPoint.sol/IEntryPoint", k, DefaultEntryPoint)
 	require.NoError(t, err)
 
-	initCode, err := MakeInitCode(DefaultAccountFactory, k.Address(), big.NewInt(1))
+	initCode, err := MakeDefaultInitCode(k.Address())
 	require.NoError(t, err)
 
 	_, err = ep.Call("getSenderAddress", ethgo.Latest, initCode)
@@ -57,4 +56,14 @@ func TestGetSenderAddress(t *testing.T) {
 	senderAddrBytes := eodBytes[16:]
 	require.Equal(t, ethgo.HexToAddress("0x054dF6203225bB58d9243eBf9DAd55608a436042"), ethgo.BytesToAddress(senderAddrBytes))
 
+}
+
+func TestInitABI(t *testing.T) {
+
+	abiAccountFactory, err := chain.LoadABI("SimpleAccountFactory.sol/SimpleAccountFactory")
+	require.NoError(t, err)
+
+	checkCreateMethod := abiAccountFactory.GetMethod("createAccount")
+
+	require.Equal(t, checkCreateMethod.Sig(), createAccountMethod.Sig())
 }

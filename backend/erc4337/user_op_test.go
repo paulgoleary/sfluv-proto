@@ -50,9 +50,21 @@ func TestUserOpContracts(t *testing.T) {
 	require.NoError(t, err)
 	k := &chain.EcdsaKey{SK: sk}
 
-	mintMethod := abiMC.GetMethod("mint")
 	callData, err := makeExecute(chain.MockMumbaiAddr, big.NewInt(0), mintMethod, k.Address(), ethgo.Ether(100))
 	require.NoError(t, err)
 	require.Equal(t, 228, len(callData))
 	require.Equal(t, abiExec.ID(), callData[:4])
+}
+
+func TestOpABIMethods(t *testing.T) {
+
+	var abiMC, err = chain.LoadABI("MockCoin.sol/MockCoin")
+	require.NoError(t, err)
+
+	checkMintMethod := abiMC.GetMethod("mint")
+	require.Equal(t, checkMintMethod.Sig(), mintMethod.Sig())
+
+	checkApproveMethod := abiMC.GetMethod("approve")
+	require.Equal(t, checkApproveMethod.Sig(), approveMethod.Sig())
+
 }
