@@ -37,6 +37,12 @@ func getBuildArtifact(name string) (art *compiler.Artifact, err error) {
 	if jsonBytes, err = os.ReadFile(filepath.Join("../../contracts/out", name)); err != nil {
 		return
 	}
+
+	art, err = parseBuildArtifact(jsonBytes)
+	return
+}
+
+func parseBuildArtifact(jsonBytes []byte) (art *compiler.Artifact, err error) {
 	var jart jsonArtifact
 	if err = json.Unmarshal(jsonBytes, &jart); err != nil {
 		return
@@ -80,6 +86,23 @@ func LoadContract(ec *jsonrpc.Client, name string, withKey ethgo.Key, addr ethgo
 	loaded = contract.NewContract(addr, theAbi,
 		contract.WithJsonRPC(ec.Eth()),
 		contract.WithSender(withKey),
+	)
+
+	return
+}
+
+func LoadReadContractAbi(ec *jsonrpc.Client, abiBytes []byte, addr ethgo.Address) (loaded *contract.Contract, err error) {
+	var art *compiler.Artifact
+	if art, err = parseBuildArtifact(abiBytes); err != nil {
+		return
+	}
+	var theAbi *abi.ABI
+	if theAbi, err = abi.NewABI(art.Abi); err != nil {
+		return
+	}
+
+	loaded = contract.NewContract(addr, theAbi,
+		contract.WithJsonRPC(ec.Eth()),
 	)
 
 	return

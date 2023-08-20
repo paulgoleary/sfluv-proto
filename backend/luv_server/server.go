@@ -2,9 +2,12 @@ package main
 
 import (
 	"fmt"
+	"github.com/paulgoleary/local-luv-proto/config"
 	"github.com/paulgoleary/local-luv-proto/erc4337"
 	"github.com/paulgoleary/local-luv-proto/util"
+	"log"
 	"net/http"
+	"os"
 
 	"github.com/gin-gonic/gin"
 )
@@ -27,7 +30,9 @@ func CORSMiddleware() gin.HandlerFunc {
 	}
 }
 
-func setupRouter() *gin.Engine {
+var DefaultPolygonRpcUrl = "https://polygon-rpc.com"
+
+func setupRouter(hc *erc4337.HandlerContext) *gin.Engine {
 	r := gin.Default()
 	r.Use(CORSMiddleware())
 
@@ -36,20 +41,28 @@ func setupRouter() *gin.Engine {
 		c.String(http.StatusOK, "ok")
 	})
 
-	hc := erc4337.HandlerContext{}
-
-	// GET? erc4337/userop/approve?target=XXXX&spender=YYYY&amount=10000&owner=ZZZZ
-	// function approve(address spender, uint256 amount) external returns (bool)
-
-	// GET? erc4337/userop/depositFor
 	erc4337Group := r.Group("erc4337")
 	erc4337Group.GET("userop/approve", hc.HandleUserOpApprove)
+	erc4337Group.GET("userop/withdrawto", hc.HandleUserOpWithdrawTo)
+
+	erc4337Group.PUT("userop/send", hc.HandleUserOpSend)
 
 	return r
 }
 
 func main() {
-	r := setupRouter()
+
+	maybeEnvUrl := os.Getenv("CHAIN_URL")
+	if maybeEnvUrl == "" {
+		maybeEnvUrl = DefaultPolygonRpcUrl
+	}
+	cfg := config.Config{ChainRpcUrl: maybeEnvUrl}
+	hc, err := erc4337.MakeContext(cfg)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	r := setupRouter(hc)
 	localIp := util.GetOutboundIP()
 	println(fmt.Sprintf("server starting at local IP %v", localIp.String())) // TODO: logging...
 	// Listen and Server in 0.0.0.0:8080

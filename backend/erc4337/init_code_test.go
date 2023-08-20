@@ -1,13 +1,11 @@
 package erc4337
 
 import (
-	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/paulgoleary/local-luv-proto/chain"
 	"github.com/paulgoleary/local-luv-proto/crypto"
 	"github.com/stretchr/testify/require"
 	"github.com/umbracle/ethgo"
 	"github.com/umbracle/ethgo/jsonrpc"
-	"github.com/umbracle/ethgo/jsonrpc/codec"
 	"os"
 	"testing"
 )
@@ -44,17 +42,10 @@ func TestGetSenderAddress(t *testing.T) {
 
 	_, err = ep.Call("getSenderAddress", ethgo.Latest, initCode)
 	// this method is expected to revert
-	eo, ok := err.(*codec.ErrorObject)
-	require.True(t, ok)
-	eod, ok := eo.Data.(string)
-	require.True(t, ok)
-
-	eodBytes, err := hexutil.Decode(eod)
+	senderAddr, err := getSenderAddressFromError(err)
 	require.NoError(t, err)
 
-	require.Equal(t, 36, len(eodBytes))
-	senderAddrBytes := eodBytes[16:]
-	require.Equal(t, ethgo.HexToAddress("0x054dF6203225bB58d9243eBf9DAd55608a436042"), ethgo.BytesToAddress(senderAddrBytes))
+	require.Equal(t, ethgo.HexToAddress("0x054dF6203225bB58d9243eBf9DAd55608a436042"), senderAddr)
 
 }
 

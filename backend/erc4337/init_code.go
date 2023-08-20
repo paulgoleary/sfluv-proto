@@ -1,9 +1,13 @@
 package erc4337
 
 import (
+	"fmt"
+	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/umbracle/ethgo"
 	"github.com/umbracle/ethgo/abi"
+	"github.com/umbracle/ethgo/jsonrpc/codec"
 	"math/big"
+	"strings"
 )
 
 // let createAccountTx = await accountFactoryContract.$data().createAccount({ address: owner }, owner, salt);
@@ -24,5 +28,28 @@ func makeInitCode(factory, owner ethgo.Address, salt *big.Int) (ret []byte, err 
 		return
 	}
 	ret = append(factory.Bytes(), ret...) // 'packed encoding' ...
+	return
+}
+
+var senderAddressErrorPrefix = "0x6ca7b806"
+
+func getSenderAddressFromError(errIn error) (addr ethgo.Address, err error) {
+	if eo, ok := errIn.(*codec.ErrorObject); !ok {
+		err = fmt.Errorf("unexpected - error is not *codec.ErrorObject")
+	} else {
+		if eod, ok := eo.Data.(string); !ok {
+			err = fmt.Errorf("unexpected - codec.ErrorObject Data element is not a string")
+		} else {
+			if !strings.HasPrefix(eod, senderAddressErrorPrefix) {
+				err = fmt.Errorf("unexpected - error data format has invalid 4byte prefix")
+			} else {
+				var eodBytes []byte
+				if eodBytes, err = hexutil.Decode(eod); err != nil || len(eodBytes) != 36 {
+					err = fmt.Errorf("unexpected - bad address data a/o invalid length")
+				}
+				addr = ethgo.BytesToAddress(eodBytes[16:])
+			}
+		}
+	}
 	return
 }
