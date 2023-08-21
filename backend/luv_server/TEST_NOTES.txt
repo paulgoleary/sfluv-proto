@@ -1,15 +1,17 @@
 
+# owner: the owning address - i.e. account with private key - to retrieve sender account - i.e. wallet account address
+# NOTE that the wallet may not yet exist, which will be indicated by a current nonce of 0
+curl 'http://localhost:8080/erc4337/sender?owner=6D64a4aF99563a82B212124604f6d1759376F37F'
 
 # target: should be contract address of base token - e.g. USDC on Polygon mainnet
 # spender: should be address to 'own' the base token, which actually needs to be the SFLUV token contract
-# amount: amount of base token to approve. keep in mind that USDC has 6 decimal places, instead of the 'standard' 18 for ETH, etc.
+# amount: amount of base token to approve. NOTE that USDC has 6 decimal places, instead of the 'standard' 18 for ETH, etc.
 # owner: the 'owning' account of smart contract wallet; i.e. the wallet address of the private key that will sign user ops
 curl 'http://localhost:8080/erc4337/userop/approve?target=2791Bca1f2de4661ED88A30C99A7a9449Aa84174&spender=58a2993A618Afee681DE23dECBCF535A58A080BA&amount=100000000&owner=6D64a4aF99563a82B212124604f6d1759376F37F'
 
-# target: the contract address of the SFLUV token, which will be withdrawn (unwrapped) to the base token
-# to: the address to withdraw the unwrapped token to. NOTE that this needs to be the smart contract wallet address, not the owner account
-#  TODO: likely need to add an API so that the front-end can retrieve the expected sender account for an owner. these API's should then be changed to take sender...
-# amount: amount of token to withdraw. keep in mind that USDC - and therefore SFLUV - has 6 decimal places, instead of the 'standard' 18 for ETH, etc.
+# target: the contract address of the SFLUV token, which will be withdrawn (unwrapped) to the base token, i.e. USDC
+# to: the address to withdraw the unwrapped token to. NOTE that this needs to be the smart contract wallet address (SENDER), not the owner account
+# amount: amount of token to withdraw. NOTE that USDC - and therefore SFLUV - has 6 decimal places, instead of the 'standard' 18 for ETH, etc.
 # owner: the 'owning' account of smart contract wallet; i.e. the wallet address of the private key that will sign user ops
 curl 'http://localhost:8080/erc4337/userop/withdrawto?target=2791Bca1f2de4661ED88A30C99A7a9449Aa84174&to=58a2993A618Afee681DE23dECBCF535A58A080BA&amount=100000000&owner=6D64a4aF99563a82B212124604f6d1759376F37F'
 
@@ -17,7 +19,7 @@ curl --location -g --request POST 'http://localhost:8080/erc4337/userop/send' \
 --header 'Content-Type: application/json' \
 --header 'Accept: application/json' \
 --data-raw '{
-    "entryPoint": "0x33507898686B205267c66BcD41a3F2d9B15d1204",
+    "entryPoint": "0x5ff137d4b0fdcd49dca30c7cf57e578a026d2789",
     "op": {
         "sender":               "0xa13D69573f994bf662C2714560c44dd7266FC547",
         "nonce":                "0x0",
@@ -32,3 +34,13 @@ curl --location -g --request POST 'http://localhost:8080/erc4337/userop/send' \
         "signature":            "0xa925dcc5e5131636e244d4405334c25f034ebdd85c0cb12e8cdb13c15249c2d466d0bade18e2cafd3513497f7f968dcbb63e519acd9b76dcae7acd61f11aa8421b",
     }
 }'
+
+# Flow of wrap of USDC -> SFLUV will be something like ...
+# . User acquires USDC on Polygon, through an exchange or some other service.
+# . User sends USDC to smart wallet (sender) address - NOT their 'normal' wallet account. this should be exchange -> wallet, so no gas
+# . User 'approves' ('approve' method) transfer of USDC to SFLUV on USDC contract. this is done with 'approve' userop.
+# . User mints (wraps) SFLUV from USDC. this is done with 'depositFor' userop and can currently only be done if the user is authorized.
+
+# Flow of wrap of SFLUV -> USDC will be something like ...
+# . User unwraps (withdrawTo) SFLUV to USDC. this is done with the 'withdrawTo' userop and can currently be done by anyone - no auth required.
+# . Note that the 'withdrawTo' *could* be done directly to an exchange address, which would skip the step of sending to the users wallet and then to an exchange.

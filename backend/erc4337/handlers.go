@@ -84,6 +84,21 @@ func (hc *HandlerContext) GetOwnerInfo(ownerAddr ethgo.Address) (nonce *big.Int,
 	return
 }
 
+func (hc *HandlerContext) HandleGetSender(c *gin.Context) {
+	q := c.Request.URL.Query()
+	ownerAddr := handleRequiredAddress(q.Get("owner"))
+	if ownerAddr == nil {
+		c.AbortWithError(http.StatusBadRequest, fmt.Errorf("invalid or missing parameter(s)"))
+		return
+	}
+
+	if nonce, senderAddr, err := hc.GetOwnerInfo(*ownerAddr); err != nil {
+		c.AbortWithError(http.StatusInternalServerError, err)
+	} else {
+		c.JSON(http.StatusOK, fmt.Sprintf(`{"nonce":%v, "sender": "%v"}`, nonce.Int64(), senderAddr.String()))
+	}
+}
+
 func (hc *HandlerContext) HandleUserOpApprove(c *gin.Context) {
 
 	q := c.Request.URL.Query()
