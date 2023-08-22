@@ -2,6 +2,7 @@ package erc4337
 
 import (
 	"fmt"
+	"github.com/apex/log"
 	"github.com/gin-gonic/gin"
 	"github.com/paulgoleary/local-luv-proto/chain"
 	"github.com/paulgoleary/local-luv-proto/config"
@@ -31,8 +32,14 @@ func handleRequiredAddress(addrHex string) (ret *ethgo.Address) {
 }
 
 type HandlerContext struct {
+	testContext map[string]string
+
 	ChainId    *big.Int
 	EntryPoint *contract.Contract
+}
+
+func makeTestContext(testContext map[string]string) (*HandlerContext, error) {
+	return &HandlerContext{testContext: testContext}, nil
 }
 
 func MakeContext(config config.Config) (*HandlerContext, error) {
@@ -48,9 +55,11 @@ func MakeContext(config config.Config) (*HandlerContext, error) {
 
 	chainId, err := rpc.Eth().ChainID()
 	if err != nil {
+		log.Errorf("failed to connect to blockchain at %v, error %v", config.ChainRpcUrl, err.Error())
 		return nil, err
 	}
 	hc := &HandlerContext{ChainId: chainId}
+	log.Infof("connected to chain with url %v, got chain id %v", config.ChainRpcUrl, chainId.Int64())
 
 	hc.EntryPoint, err = chain.LoadReadContractAbi(rpc, abiBytes, DefaultEntryPoint)
 	if err != nil {
@@ -60,7 +69,12 @@ func MakeContext(config config.Config) (*HandlerContext, error) {
 	return hc, nil
 }
 
-func (hc *HandlerContext) GetOwnerInfo(ownerAddr ethgo.Address) (nonce *big.Int, senderAddr ethgo.Address, err error) {
+func (hc *HandlerContext) getOwnerInfo(ownerAddr ethgo.Address) (nonce *big.Int, senderAddr ethgo.Address, err error) {
+	if len(hc.testContext) != 0 {
+		nonce, _ = new(big.Int).SetString(hc.testContext["nonce"], 10)
+		senderAddr = ethgo.HexToAddress(hc.testContext["sender"])
+		return
+	}
 
 	var ownerInitCode []byte
 	if ownerInitCode, err = MakeDefaultInitCode(ownerAddr); err != nil {
@@ -92,7 +106,7 @@ func (hc *HandlerContext) HandleGetSender(c *gin.Context) {
 		return
 	}
 
-	if nonce, senderAddr, err := hc.GetOwnerInfo(*ownerAddr); err != nil {
+	if nonce, senderAddr, err := hc.getOwnerInfo(*ownerAddr); err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
 	} else {
 		c.JSON(http.StatusOK, fmt.Sprintf(`{"nonce":%v, "sender": "%v"}`, nonce.Int64(), senderAddr.String()))
@@ -114,7 +128,7 @@ func (hc *HandlerContext) HandleUserOpApprove(c *gin.Context) {
 		return
 	}
 
-	nonce, senderAddr, err := hc.GetOwnerInfo(*ownerAddr)
+	nonce, senderAddr, err := hc.getOwnerInfo(*ownerAddr)
 	if err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
 		return
@@ -144,7 +158,7 @@ func (hc *HandlerContext) HandleUserOpWithdrawTo(c *gin.Context) {
 		return
 	}
 
-	nonce, senderAddr, err := hc.GetOwnerInfo(*ownerAddr)
+	nonce, senderAddr, err := hc.getOwnerInfo(*ownerAddr)
 	if err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
 		return
@@ -181,7 +195,7 @@ func (hc *HandlerContext) HandleUserOpSend(c *gin.Context) {
 			return
 		}
 
-		_, senderAddr, err := hc.GetOwnerInfo(ownerAddr)
+		_, senderAddr, err := hc.getOwnerInfo(ownerAddr)
 		if err != nil {
 			c.AbortWithError(http.StatusInternalServerError, err)
 			return
