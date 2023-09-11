@@ -41,6 +41,6 @@ curl --location -g --request POST 'http://localhost:8080/erc4337/userop/send' \
 # . User 'approves' ('approve' method) transfer of USDC to SFLUV on USDC contract. this is done with 'approve' userop.
 # . User mints (wraps) SFLUV from USDC. this is done with 'depositFor' userop and can currently only be done if the user is authorized.
 
-# Flow of wrap of SFLUV -> USDC will be something like ...
+# Flow of unwrap of SFLUV -> USDC will be something like ...
 # . User unwraps (withdrawTo) SFLUV to USDC. this is done with the 'withdrawTo' userop and can currently be done by anyone - no auth required.
 # . Note that the 'withdrawTo' *could* be done directly to an exchange address, which would skip the step of sending to the users wallet and then to an exchange.

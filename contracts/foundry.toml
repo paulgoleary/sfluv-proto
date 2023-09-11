@@ -6,4 +6,4 @@ libs = ["lib"]
 # See more config options https://github.com/foundry-rs/foundry/tree/master/config
 
 [etherscan]
-polygon = { key = "XXXX", url = "https://api.polygonscan.com/api" }
+polygon = { key = "XB9IQXXNRQJE8AAQHNW4TWFZX2JBJ3DWJE", url = "https://api.polygonscan.com/api" }
