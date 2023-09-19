@@ -97,9 +97,9 @@ func UserOpSeal(op *userop.UserOperation, chainId *big.Int, k *chain.EcdsaKey) (
 	return op, nil
 }
 
-func UserOpEcrecover(op *userop.UserOperation, chainId *big.Int) (opEthHash []byte, addr ethgo.Address, err error) {
-	opHash := op.GetUserOpHash(common.Address(DefaultEntryPoint), chainId)
-	opEthHash = crypto.EthSignedMessageHash(opHash.Bytes())
+func UserOpEcrecover(op *userop.UserOperation, chainId *big.Int) (opHash common.Hash, addr ethgo.Address, err error) {
+	opHash = op.GetUserOpHash(common.Address(DefaultEntryPoint), chainId)
+	opEthHash := crypto.EthSignedMessageHash(opHash.Bytes())
 	addr, err = wallet.Ecrecover(opEthHash, op.Signature)
 	return
 }
