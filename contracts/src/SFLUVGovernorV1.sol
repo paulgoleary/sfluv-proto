@@ -17,7 +17,7 @@ contract SFLUVVotesV1 is ERC721Votes, Ownable {
     EIP712("SFLUVVotes", "0.0.1")
     {}
 
-    uint256 _tokenId;
+    uint256 private _tokenId;
 
     //     function _safeMint(address to, uint256 tokenId) internal virtual {
     function mint(address to) public onlyOwner {
