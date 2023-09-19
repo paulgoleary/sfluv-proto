@@ -1,241 +1,25 @@
-* {
+body {
   margin: 0;
-  font-family: Arial, Helvetica, sans-serif;
-  color: #333;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-.navbar {
-  background-color: white;
-  padding-top: 1vh;
-  display: flex;
-  flex-direction: row;
-  position: sticky;
-  top: 0px;
-  align-items: center;
-  max-width: 800px;
-  margin: 0 auto;
-  border-bottom: 1px solid #f2f2f2;
-  font-size: 18px;
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
 }
 
-
-
-.navbar .app-links {
-  display: flex;
-  position: relative;
-  margin-left: auto;
-  padding-right: 30px;
-  flex-direction: row;
-  top: 6px;
-}
-
-.navbar .web-links {
-  display: flex;
-  flex-direction: row;
-}
-
-.navbar a {
-  margin-left: 24px;
-  text-decoration: none;
-  padding: 6px;
-}
-
-.navbar a:hover {
-  color: #eb6c6c;
-}
-
-.navbar .profileImg {
-  display: inline;
-  position: relative;
-  bottom:2px;
-  max-inline-size: 30px;
-  background-color: #333;
-}
-
-.navbar .profileImg:hover {
-  max-inline-size: 30px;
-  background-color: #eb6c6c;
-}
-
-.navbar .logo {
-  position: relative;
-  bottom: 1px;
-  max-inline-size: 120px;
-}
-
-.content {
-  max-width: 65vw;
-  margin: 40px auto;
-  padding: 20px;
-}
-
-
-
-.magicUI .button {
-  background-color: #eb6c6c;
-  color: white;
-
-}
-
-.walletDetails {
-  font-family: Arial, Helvetica, sans-serif;
-}
-
-.buy {
-  display: flex;
-  text-align: center;
-  justify-content: center;
-  min-width: 100px;
-}
-
-.buy .form {
-  max-width: 400px;
-  margin-top: 0;
-}
-
-.buy input {
-  font-size: 20px;
-  text-align: center;
-  border-style: solid;
-  border-width: 1px;
-  border-color: black;
-  border-radius: 10px;
-  padding-left: 5px;
-  padding-right: 5px;
-  padding-top: 5px;
-  padding-bottom: 5px;
-  margin-top: 10px;
-  margin-bottom: 30px;
-}
-
-.buy input:hover{
-  border-color: #9f9f9f
-}
-
-
-.buy .button {
-  background-color: #eb6c6c;
-  color: white;
-  margin-bottom: 10px;
-}
-
-.buy h1 {
-  font-size: 30px;
-  font-weight: bold;
-  margin-bottom: 20px;
-}
-
-.buy a {
-  text-decoration: underline;
-}
-
-.pin {
-  width: auto;
-}
-
-
-.pinInput {
-  margin: 10px;
-  size: 30px;
-}
-
-.loggedIn {
-  font-size: 30px;
-  font-weight: bold;
-  margin-bottom: 20px;
-}
-
-.ratioLogon {
-  max-height: 230px;
-  padding: 10px;
-  overflow-y: scroll;
-  border-bottom: 2px solid #f2f2f2;
-  scroll-margin-bottom: 50px;
-}
-
-.error {
-  color: red;
-}
-
-.profileNav {
-  background-color: white;
-  display: flex;
+.userOpButtons {
   margin-left: auto;
   margin-right: auto;
-  flex-direction: row;
-  position: sticky;
-  top: 100px;
-  align-items: center;
-  max-width: 500px;
   text-align: center;
-  font-size: 16px;
-  margin-top: 0;
+  max-width: 600px;
 }
 
-.profileNav .magic {
-  display: inline;
-  text-align: center;
-  width: 200px;
-  padding-bottom: 20px;
-}
-
-.profileNav .ratio {
-  text-align: center;
-  display: inline;
-  margin-left: auto;
-  width: 200px;
-  padding-bottom: 20px;
-}
-
-.profileNav :hover {
-  color: #eb6c6c;
-}
-
-.profileNav .selected {
-  color: #eb6c6c;
-  border-color: #eb6c6c;
-  border-bottom-style: solid;
-  border-bottom-width: 2px;
-}
-
-.profileSection {
-  margin: 40px auto;
-  max-width: 60vw;
-}
-
-
-.profileSection h2 {
-  font-size: 25px;
-  font-weight: bold;
-}
-
-.profileItem {
-  border-bottom-color:#dddddd;
-  border-bottom-style: solid;
-  border-bottom-width: 1px;
-}
-.lastProfileItem, .profileItem {
-  column-count: 2;
-  margin-left: 0;
-  padding-left: 0;
-
-}
-
-.profileItemCategory {
-  width: auto;
-  border-right-color:#dddddd;
-  border-right-style: solid;
-  border-right-width: 1px;
-  padding-top: 15px;
-  padding-bottom: 15px;
-
-}
-
-.profileItemValue {
-  text-align: left;
-  padding-top: 15px;
-  padding-bottom: 15px;
-}
-.profileItemValue input{
-  width: 25vw;
+.data {
+  max-height: 100px;
+  overflow: scroll;
 }

@@ -1,3 +1,4 @@
+
 import { Button } from "@chakra-ui/react"
 import { magic } from "../libs/magic"
 import { useWeb3 } from "../context/Web3Context"
@@ -21,7 +22,7 @@ const ConnectButton = () => {
   }
 
   // Render the button component with the click event handler
-  return <div className="connect"><Button className="button" onClick={handleConnect}>Connect</Button></div>
+  return <Button onClick={handleConnect}>Connect</Button>
 }
 
 export default ConnectButton
