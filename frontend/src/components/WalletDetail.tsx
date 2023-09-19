@@ -1,8 +1,8 @@
+
 import { useEffect, useState } from "react"
 import { Text, Flex, Divider } from "@chakra-ui/react"
 import { useWeb3 } from "../context/Web3Context"
 import { useUser } from "../context/UserContext"
-import useBalance from "../useBalance"
 
 const WalletDetail = () => {
   // Use the Web3Context to get the current instance of web3
@@ -19,10 +19,10 @@ const WalletDetail = () => {
       if (!user || !web3) return
       try {
         // If account and web3 are available, get the balance
-        const balance = await web3.eth.getBalance(user)
+        const balance = await web3.eth.getBalance(user);
 
         // Convert the balance from Wei to Ether and set the state variable
-        setBalance(web3.utils.fromWei(balance).substring(0, 7))
+        setBalance(web3.utils.fromWei(balance, "ether").substring(0, 7));
       } catch (error) {
         console.error(error)
       }
@@ -33,14 +33,14 @@ const WalletDetail = () => {
 
   // Render the account address and balance
   return (
-    <Flex className="walletDetails" direction="column">
+    <Flex direction="column">
       <Text fontWeight="bold">Address</Text>
-      <Text my={2}>
+      <Text fontFamily="monospace" my={2}>
         {user}
       </Text>
       <Divider my={2} />
       <Text fontWeight="bold">Balance</Text>
-      <Text>{balance} ETH</Text>
+      <Text fontFamily="monospace">{balance} ETH</Text>
     </Flex>
   )
 }

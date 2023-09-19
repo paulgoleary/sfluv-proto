@@ -1,3 +1,4 @@
+
 import { useState, useRef } from "react"
 import { HStack, Box, VStack, Input, Button, Text } from "@chakra-ui/react"
 import { useWeb3 } from "../context/Web3Context"
@@ -46,7 +47,6 @@ const SignMessage = () => {
           {/* Input field for the message to be signed */}
           <Input
             placeholder="Set Message"
-            maxLength={20}
             onChange={handleInput}
             w="300px"
           />
