@@ -3,6 +3,7 @@ package erc4337
 import (
 	"fmt"
 	"github.com/apex/log"
+	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/gin-gonic/gin"
 	"github.com/paulgoleary/local-luv-proto/chain"
 	"github.com/paulgoleary/local-luv-proto/config"
@@ -189,7 +190,7 @@ func (hc *HandlerContext) HandleUserOpSend(c *gin.Context) {
 		c.AbortWithError(http.StatusInternalServerError, err)
 		return
 	} else {
-		ownerAddr, err := UserOpEcrecover(userOp, hc.ChainId)
+		opHash, ownerAddr, err := UserOpEcrecover(userOp, hc.ChainId)
 		if err != nil {
 			c.AbortWithError(http.StatusBadRequest, fmt.Errorf("ecrecover failure: %v", err.Error()))
 			return
@@ -201,8 +202,8 @@ func (hc *HandlerContext) HandleUserOpSend(c *gin.Context) {
 			return
 		}
 		if senderAddr.String() != userOp.Sender.String() {
-			c.AbortWithError(http.StatusBadRequest, fmt.Errorf("op sender address does not match recovered sender address: owner '%v', sender '%v', userop sender '%v'",
-				ownerAddr.String(), senderAddr.String(), userOp.Sender.String()))
+			c.AbortWithError(http.StatusBadRequest, fmt.Errorf("op sender address does not match recovered sender address: owner '%v', sender '%v', userop sender '%v', op hash '%v'",
+				ownerAddr.String(), senderAddr.String(), userOp.Sender.String(), hexutil.Encode(opHash)))
 			return
 		}
 	}
