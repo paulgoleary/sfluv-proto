@@ -201,7 +201,8 @@ func (hc *HandlerContext) HandleUserOpSend(c *gin.Context) {
 			return
 		}
 		if senderAddr.String() != userOp.Sender.String() {
-			c.AbortWithError(http.StatusBadRequest, fmt.Errorf("op sender address does not match recovered sender address"))
+			c.AbortWithError(http.StatusBadRequest, fmt.Errorf("op sender address does not match recovered sender address: owner '%v', sender '%v', userop sender '%v'",
+				ownerAddr.String(), senderAddr.String(), userOp.Sender.String()))
 			return
 		}
 	}
