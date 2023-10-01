@@ -44,6 +44,9 @@ contract SFLUVv1Test is Test {
 
         string memory proposalDesc = "This is a test proposal.";
 
+        // contract owner does not have minter role by default ...
+        testVotes.grantRole(testVotes.MINTER_ROLE(), testVotes.owner());
+
         // mint dao token to citizen
         testVotes.mint(citizen);
 
