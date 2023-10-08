@@ -91,6 +91,7 @@ require (
 	github.com/valyala/fasthttp v1.4.0 // indirect
 	github.com/valyala/fastjson v1.4.1 // indirect
 	github.com/wangjia184/sortedset v0.0.0-20220209072355-af6d6d227aa7 // indirect
+	go.etcd.io/bbolt v1.3.6 // indirect
 	go.opencensus.io v0.24.0 // indirect
 	go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin v0.42.0 // indirect
 	go.opentelemetry.io/otel v1.16.0 // indirect

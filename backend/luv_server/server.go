@@ -2,7 +2,9 @@ package main
 
 import (
 	"fmt"
+	"github.com/paulgoleary/local-luv-proto/chain"
 	"github.com/paulgoleary/local-luv-proto/config"
+	"github.com/paulgoleary/local-luv-proto/crypto"
 	"github.com/paulgoleary/local-luv-proto/erc4337"
 	"github.com/paulgoleary/local-luv-proto/util"
 	"log"
@@ -62,6 +64,19 @@ func main() {
 	hc, err := erc4337.MakeContext(cfg)
 	if err != nil {
 		log.Fatal(err)
+	}
+
+	maybeConciergeKeyHex := os.Getenv("CONCIERGE_SK")
+	if len(maybeConciergeKeyHex) != 0 {
+		sk, err := crypto.SKFromHex(maybeConciergeKeyHex)
+		if err != nil {
+			log.Fatal(err)
+		}
+		k := &chain.EcdsaKey{SK: sk}
+
+		if _, err = chain.StartConcierge(k, maybeEnvUrl, "."); err != nil {
+			log.Fatal(err)
+		}
 	}
 
 	r := setupRouter(hc)

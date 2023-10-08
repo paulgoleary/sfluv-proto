@@ -15,11 +15,6 @@ import (
 	"strings"
 )
 
-// 0x80FD6A0a454045d3E24B5BAa19b9066ae01a0b09
-// 0x39C716D8c6E4D3B45Bc9e60f5C12378433668588
-var MockMumbaiAddr = ethgo.HexToAddress("0x80FD6A0a454045d3E24B5BAa19b9066ae01a0b09")
-var LuvMumbaiAddr = ethgo.HexToAddress("0x39C716D8c6E4D3B45Bc9e60f5C12378433668588")
-
 type jsonBytecode struct {
 	Object string `json:"object"`
 }
@@ -35,7 +30,9 @@ func getBuildArtifact(name string) (art *compiler.Artifact, err error) {
 	}
 	var jsonBytes []byte
 	if jsonBytes, err = os.ReadFile(filepath.Join("../../contracts/out", name)); err != nil {
-		return
+		if jsonBytes, err = os.ReadFile(filepath.Join("../contracts/out", name)); err != nil {
+			return
+		}
 	}
 
 	art, err = parseBuildArtifact(jsonBytes)

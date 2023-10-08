@@ -11,8 +11,7 @@ import (
 	"testing"
 )
 
-var SFLUVPolygonMainnetV1 = ethgo.HexToAddress("0x2CA26Aad94CBe5caBE1C1ba890eb771d78CF8D07")
-var SFLUVPolygonMainnetV1_1 = ethgo.HexToAddress("0x58a2993A618Afee681DE23dECBCF535A58A080BA")
+var billyzWallet = ethgo.HexToAddress("0xEF17dc60E4D58Fd24D3b6FCDF07e3C5029018863")
 
 func TestSFLUVMint(t *testing.T) {
 	ec, err := jsonrpc.NewClient(os.Getenv("CHAIN_URL"))
@@ -22,12 +21,12 @@ func TestSFLUVMint(t *testing.T) {
 	require.NoError(t, err)
 	k := &EcdsaKey{SK: sk}
 
-	if true {
+	if false {
 		ep, err := LoadContract(ec, "ERC20.sol/ERC20", k, USDCPolygonMainnet)
 		require.NoError(t, err)
 
 		// function approve(address spender, uint256 amount) public virtual override returns (bool)
-		err = TxnDoWait(ep.Txn("approve", SFLUVPolygonMainnetV1_1, big.NewInt(100*1_000_000)))
+		err = TxnDoWait(ep.Txn("approve", SFLUVPolygonMainnetV1_1, big.NewInt(1*1_000_000)))
 		require.NoError(t, err)
 
 		// function allowance(address owner, address spender) external view returns (uint256);
@@ -45,12 +44,19 @@ func TestSFLUVMint(t *testing.T) {
 		minterRole, ok := resp["0"].([32]byte)
 		require.True(t, ok)
 
-		// testLUVCoin.grantRole(testLUVCoin.MINTER_ROLE(), testLUVCoin.owner());
-		err = TxnDoWait(ep.Txn("grantRole", minterRole, k.Address()))
+		resp, err = ep.Call("hasRole", ethgo.Latest, minterRole, k.Address())
 		require.NoError(t, err)
+		hasRole, ok := resp["0"].(bool)
+		require.True(t, ok)
 
-		// function depositFor(address account, uint256 amount) public override returns (bool) {
-		err = TxnDoWait(ep.Txn("depositFor", k.Address(), big.NewInt(100*1_000_000)))
+		if !hasRole {
+			// testLUVCoin.grantRole(testLUVCoin.MINTER_ROLE(), testLUVCoin.owner());
+			err = TxnDoWait(ep.Txn("grantRole", minterRole, k.Address()))
+			require.NoError(t, err)
+		}
+
+		// err = TxnDoWait(ep.Txn("depositFor", k.Address(), big.NewInt(100*1_000_000)))
+		err = TxnDoWait(ep.Txn("depositFor", billyzWallet, big.NewInt(1_000)))
 		require.NoError(t, err)
 
 		resp, err = ep.Call("balanceOf", ethgo.Latest, k.Address())
