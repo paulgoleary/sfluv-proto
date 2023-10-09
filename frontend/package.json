@@ -1,34 +1,31 @@
 {
-  "name": "frontend",
+  "name": "web3auth-stackup-integration-test",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@chakra-ui/react": "^2.8.1",
-    "@emotion/react": "^11.11.1",
-    "@emotion/styled": "^11.11.0",
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
     "@types/jest": "^27.5.2",
-    "@types/node": "^16.18.51",
-    "@types/react": "^18.2.21",
-    "@types/react-dom": "^18.2.7",
-    "dotenv": "^16.3.1",
-    "ethers": "5.7",
-    "framer-motion": "^10.16.4",
-    "magic-sdk": "^20.0.1",
+    "@types/node": "^16.18.58",
+    "@types/react": "^18.2.25",
+    "@types/react-dom": "^18.2.11",
+    "@web3auth/ethereum-provider": "^7.0.2",
+    "@web3auth/modal": "^7.0.3",
+    "eth-rpc-errors": "^4.0.3",
+    "ethers": "^6.7.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-scripts": "5.0.1",
     "typescript": "^4.9.5",
     "userop": "^0.3.3",
     "web-vitals": "^2.1.4",
-    "web3": "^4.1.1"
+    "web3": "^4.1.2"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
+    "start": "react-app-rewired start",
+    "build": "react-app-rewired build",
+    "test": "react-app-rewired test",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
@@ -48,5 +45,10 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "buffer": "^6.0.3",
+    "process": "^0.11.10",
+    "react-app-rewired": "^2.2.1"
   }
 }

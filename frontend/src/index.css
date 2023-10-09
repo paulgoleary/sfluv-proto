@@ -11,15 +11,3 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
-
-.userOpButtons {
-  margin-left: auto;
-  margin-right: auto;
-  text-align: center;
-  max-width: 600px;
-}
-
-.data {
-  max-height: 100px;
-  overflow: scroll;
-}
