@@ -1,6 +1,7 @@
 package erc4337
 
 import (
+	"fmt"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/paulgoleary/local-luv-proto/chain"
@@ -77,11 +78,11 @@ func UserOpApprove(nonce *big.Int, owner, sender, targetAddr, spender ethgo.Addr
 	}
 }
 
-func UserOpWithdrawTo(nonce *big.Int, owner, sender, targetAddr, toAddr ethgo.Address, amt *big.Int) (*userop.UserOperation, error) {
+func UserOpWithdrawTo(nonce *big.Int, owner, sender, targetAddr, toAddr ethgo.Address, amt, gas *big.Int) (*userop.UserOperation, error) {
 	if callData, err := makeExecute(targetAddr, big.NewInt(0), withdrawToMethod, toAddr, amt); err != nil {
 		return nil, err
 	} else {
-		return makeBaseOp(nonce, owner, sender, DefaultWithdrawToGasLimit, big.NewInt(2_000_000_000), callData)
+		return makeBaseOp(nonce, owner, sender, DefaultWithdrawToGasLimit, gas, callData)
 	}
 }
 
@@ -100,6 +101,15 @@ func UserOpSeal(op *userop.UserOperation, chainId *big.Int, k *chain.EcdsaKey) (
 func UserOpEcrecover(op *userop.UserOperation, chainId *big.Int) (opHash common.Hash, addr ethgo.Address, err error) {
 	opHash = op.GetUserOpHash(common.Address(DefaultEntryPoint), chainId)
 	opEthHash := crypto.EthSignedMessageHash(opHash.Bytes())
-	addr, err = wallet.Ecrecover(opEthHash, op.Signature)
+	if len(op.Signature) != 65 {
+		err = fmt.Errorf("should not happen - invalid signature size in user op: %v", len(op.Signature))
+	} else {
+		var sig [65]byte
+		copy(sig[:], op.Signature)
+		if sig[64] >= 27 {
+			sig[64] -= 27
+		}
+		addr, err = wallet.Ecrecover(opEthHash, sig[:])
+	}
 	return
 }

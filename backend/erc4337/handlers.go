@@ -3,9 +3,11 @@ package erc4337
 import (
 	"fmt"
 	"github.com/apex/log"
+	"github.com/ethereum/go-ethereum/rpc"
 	"github.com/gin-gonic/gin"
 	"github.com/paulgoleary/local-luv-proto/chain"
 	"github.com/paulgoleary/local-luv-proto/config"
+	"github.com/paulgoleary/local-luv-proto/crypto"
 	"github.com/stackup-wallet/stackup-bundler/pkg/userop"
 	"github.com/umbracle/ethgo"
 	"github.com/umbracle/ethgo/contract"
@@ -33,6 +35,10 @@ func handleRequiredAddress(addrHex string) (ret *ethgo.Address) {
 
 type HandlerContext struct {
 	testContext map[string]string
+	chainRpc    *jsonrpc.Client
+
+	suNodeRpc *rpc.Client
+	suPMRpc   *rpc.Client
 
 	ChainId    *big.Int
 	EntryPoint *contract.Contract
@@ -48,25 +54,44 @@ func MakeContext(config config.Config) (*HandlerContext, error) {
 		return nil, err
 	}
 
-	rpc, err := jsonrpc.NewClient(config.ChainRpcUrl)
+	chainRpc, err := jsonrpc.NewClient(config.ChainRpcUrl)
 	if err != nil {
 		return nil, err
 	}
 
-	chainId, err := rpc.Eth().ChainID()
+	nodeRpc, err := rpc.Dial(config.SUNodeUrl)
+	if err != nil {
+		return nil, err
+	}
+
+	pmRpc, err := rpc.Dial(config.SUPayMasterUrl)
+	if err != nil {
+		return nil, err
+	}
+
+	chainId, err := chainRpc.Eth().ChainID()
 	if err != nil {
 		log.Errorf("failed to connect to blockchain at %v, error %v", config.ChainRpcUrl, err.Error())
 		return nil, err
 	}
-	hc := &HandlerContext{ChainId: chainId}
+	hc := &HandlerContext{ChainId: chainId, chainRpc: chainRpc, suNodeRpc: nodeRpc, suPMRpc: pmRpc}
 	log.Infof("connected to chain with url %v, got chain id %v", config.ChainRpcUrl, chainId.Int64())
 
-	hc.EntryPoint, err = chain.LoadReadContractAbi(rpc, abiBytes, DefaultEntryPoint)
+	hc.EntryPoint, err = chain.LoadReadContractAbi(chainRpc, abiBytes, DefaultEntryPoint)
 	if err != nil {
 		return nil, err
 	}
 
 	return hc, nil
+}
+
+// TODO: this might get kind of expensive. in the future we could have a goproc that updates a cached price
+func (hc *HandlerContext) getGasPrice() (*big.Int, error) {
+	if price, err := hc.chainRpc.Eth().GasPrice(); err != nil {
+		return nil, err
+	} else {
+		return big.NewInt(int64(price)), nil
+	}
 }
 
 func (hc *HandlerContext) getOwnerInfo(ownerAddr ethgo.Address) (nonce *big.Int, senderAddr ethgo.Address, err error) {
@@ -95,6 +120,33 @@ func (hc *HandlerContext) getOwnerInfo(ownerAddr ethgo.Address) (nonce *big.Int,
 	if nonce, ok = res["nonce"].(*big.Int); !ok {
 		err = fmt.Errorf("unexpected - expected *big.Int for nonce return value")
 	}
+	return
+}
+
+func (hc *HandlerContext) getPaymasterInfo(userOp *userop.UserOperation) (newOp *userop.UserOperation, err error) {
+	// paymaster API requires signature - can be fake tho ...
+	k, _ := crypto.SKFromInt(big.NewInt(0))
+	prevSignature := userOp.Signature
+	if newOp, err = UserOpSeal(userOp, hc.ChainId, &chain.EcdsaKey{SK: k}); err != nil {
+		return nil, err
+	} else {
+		var pmResp map[string]any
+		opMap, _ := newOp.ToMap()
+		if err = hc.suPMRpc.Call(&pmResp, "pm_sponsorUserOperation", opMap, DefaultEntryPoint.String(), map[string]string{"type": "payg"}); err != nil {
+			return nil, err
+		}
+		for k, v := range pmResp {
+			opMap[k] = v
+		}
+		newOp, err = userop.New(opMap)
+		newOp.Signature = prevSignature
+	}
+	return
+}
+
+func (hc *HandlerContext) sendUserOp(userOp *userop.UserOperation) (reply string, err error) {
+	opMap, _ := userOp.ToMap()
+	err = hc.suNodeRpc.Call(&reply, "eth_sendUserOperation", opMap, DefaultEntryPoint.String())
 	return
 }
 
@@ -164,10 +216,20 @@ func (hc *HandlerContext) HandleUserOpWithdrawTo(c *gin.Context) {
 		return
 	}
 
-	if op, err := UserOpWithdrawTo(nonce, *ownerAddr, senderAddr, *targetAddr, *toAddr, amount); err != nil {
+	gasPrice, err := hc.getGasPrice()
+	if err != nil {
+		c.AbortWithError(http.StatusInternalServerError, err)
+		return
+	}
+
+	if op, err := UserOpWithdrawTo(nonce, *ownerAddr, senderAddr, *targetAddr, *toAddr, amount, gasPrice); err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
 		return
 	} else {
+		if op, err = hc.getPaymasterInfo(op); err != nil {
+			c.AbortWithError(http.StatusInternalServerError, err)
+			return
+		}
 		opJson, _ := op.ToMap()
 		c.JSON(http.StatusOK, opJson)
 	}
@@ -205,7 +267,12 @@ func (hc *HandlerContext) HandleUserOpSend(c *gin.Context) {
 				ownerAddr.String(), senderAddr.String(), userOp.Sender.String(), opHash.String()))
 			return
 		}
+		if reply, err := hc.sendUserOp(userOp); err != nil {
+			c.AbortWithError(http.StatusInternalServerError, err)
+			return
+		} else {
+			c.JSON(http.StatusOK, fmt.Sprintf(`{"op hash":"%v"}`, reply))
+			return
+		}
 	}
-	c.JSON(http.StatusOK, fmt.Sprintf(`{"op hash":"%v"}`, "TODO!!!"))
-	return
 }
