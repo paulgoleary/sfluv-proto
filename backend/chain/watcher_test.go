@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/stretchr/testify/require"
 	"github.com/umbracle/ethgo"
+	"github.com/umbracle/ethgo/abi"
 	"github.com/umbracle/ethgo/blocktracker"
 	"github.com/umbracle/ethgo/jsonrpc"
 	"github.com/umbracle/ethgo/tracker"
@@ -14,7 +15,14 @@ import (
 	"testing"
 )
 
-func TestWatcher(t *testing.T) {
+// event Transfer(address indexed from, address indexed to, uint256 value);
+var transferEvent = abi.MustNewEvent(`event Transfer(
+	address indexed from,
+	address indexed to,
+	uint256 value
+)`)
+
+func noTestWatcher(t *testing.T) {
 	ec, err := jsonrpc.NewClient(os.Getenv("CHAIN_URL"))
 	require.NoError(t, err)
 

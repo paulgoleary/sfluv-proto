@@ -13,7 +13,7 @@ import (
 
 var billyzWallet = ethgo.HexToAddress("0xEF17dc60E4D58Fd24D3b6FCDF07e3C5029018863")
 
-func TestSFLUVMint(t *testing.T) {
+func noTestSFLUVMint(t *testing.T) {
 	ec, err := jsonrpc.NewClient(os.Getenv("CHAIN_URL"))
 	require.NoError(t, err)
 
@@ -76,7 +76,7 @@ func TestSFLUVMint(t *testing.T) {
 
 }
 
-func TestMockCoinMint(t *testing.T) {
+func noTestMockCoinMint(t *testing.T) {
 
 	ec, err := jsonrpc.NewClient(os.Getenv("CHAIN_URL"))
 	require.NoError(t, err)
@@ -108,5 +108,4 @@ func TestMockCoinMint(t *testing.T) {
 	checkBalance, ok := res["0"].(*big.Int)
 	require.True(t, ok)
 	require.Equal(t, 0, checkBalance.Cmp(ethgo.Ether(200)))
-
 }

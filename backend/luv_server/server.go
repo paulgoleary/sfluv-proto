@@ -63,7 +63,12 @@ func main() {
 	// TODO: some API's will fail without these url's - should we just fail here...?
 	maybeSUNodeUrl := os.Getenv("SU_NODE_URL")
 	maybeSUPaymasterUrl := os.Getenv("SU_PM_URL")
-	cfg := config.Config{ChainRpcUrl: maybeEnvUrl, SUNodeUrl: maybeSUNodeUrl, SUPayMasterUrl: maybeSUPaymasterUrl}
+	cfg := config.Config{
+		ChainSKHex:     os.Getenv("CHAIN_SK"),
+		ChainRpcUrl:    maybeEnvUrl,
+		SUNodeUrl:      maybeSUNodeUrl,
+		SUPayMasterUrl: maybeSUPaymasterUrl,
+	}
 	hc, err := erc4337.MakeContext(cfg)
 	if err != nil {
 		log.Fatal(err)
@@ -77,7 +82,7 @@ func main() {
 		}
 		k := &chain.EcdsaKey{SK: sk}
 
-		if _, err = chain.StartConcierge(k, maybeEnvUrl, "."); err != nil {
+		if _, err = erc4337.StartConcierge(k, maybeEnvUrl, "."); err != nil {
 			log.Fatal(err)
 		}
 	}

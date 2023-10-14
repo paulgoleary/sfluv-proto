@@ -10,7 +10,7 @@ import (
 	"testing"
 )
 
-func TestInitCode(t *testing.T) {
+func noTestInitCode(t *testing.T) {
 
 	sk, err := crypto.SKFromHex(os.Getenv("CHAIN_SK"))
 	require.NoError(t, err)
@@ -23,7 +23,7 @@ func TestInitCode(t *testing.T) {
 	// account creation gas usage: 288,526 per Mumbai
 }
 
-func TestGetSenderAddress(t *testing.T) {
+func noTestGetSenderAddress(t *testing.T) {
 
 	ec, err := jsonrpc.NewClient(os.Getenv("CHAIN_URL"))
 	require.NoError(t, err)

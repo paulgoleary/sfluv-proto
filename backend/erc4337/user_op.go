@@ -53,7 +53,7 @@ func makeBaseOp(nonce *big.Int, owner, sender ethgo.Address, callGasLimit, maxFe
 		"callGasLimit":         callGasLimit,
 		"verificationGasLimit": vGasLimit,
 		"maxFeePerGas":         maxFeePerGas,
-		"maxPriorityFeePerGas": "0x0",
+		"maxPriorityFeePerGas": maxFeePerGas, // TODO: this will end up being too high since it's effectively maxPriorityFeePerGas + block.basefee
 		"paymasterAndData":     "0x",
 		"preVerificationGas":   big.NewInt(100_000),
 		"signature":            "0x00",

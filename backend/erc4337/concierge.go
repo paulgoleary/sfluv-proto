@@ -1,9 +1,10 @@
-package chain
+package erc4337
 
 import (
 	"context"
 	"fmt"
 	"github.com/apex/log"
+	"github.com/paulgoleary/local-luv-proto/chain"
 	"github.com/umbracle/ethgo"
 	"github.com/umbracle/ethgo/abi"
 	"github.com/umbracle/ethgo/jsonrpc"
@@ -19,7 +20,7 @@ var transferEvent = abi.MustNewEvent(`event Transfer(
 
 func StartConcierge(withKey ethgo.Key, chainUrl, dataDir string) (context.CancelFunc, error) {
 
-	w, err := NewWatcher(SFLUVPolygonMainnetV1_1, transferEvent, chainUrl, dataDir)
+	w, err := chain.NewWatcher(chain.SFLUVPolygonMainnetV1_1, transferEvent, chainUrl, dataDir)
 	if err != nil {
 		return nil, err
 	}
@@ -29,7 +30,12 @@ func StartConcierge(withKey ethgo.Key, chainUrl, dataDir string) (context.Cancel
 		return nil, err
 	}
 
-	ep, err := LoadContract(ec, "SFLUVv1.sol/SFLUVv1", withKey, SFLUVPolygonMainnetV1_1)
+	abiBytes, err := abiIEP.ReadFile("abi/SFLUVv1.json")
+	if err != nil {
+		return nil, err
+	}
+
+	ep, err := chain.LoadReadContractAbi(ec, abiBytes, DefaultEntryPoint, withKey)
 	if err != nil {
 		return nil, err
 	}
@@ -45,7 +51,7 @@ func StartConcierge(withKey ethgo.Key, chainUrl, dataDir string) (context.Cancel
 			return fmt.Errorf("should not happen - no 'to' field in transfer event")
 		}
 
-		if toAddr == SFLUV_V1_Concierge {
+		if toAddr == chain.SFLUV_V1_Concierge {
 			fromAddr, okFrom := vals["from"].(ethgo.Address)
 			value, okVal := vals["value"].(*big.Int)
 			if !okFrom || !okVal {
@@ -67,7 +73,7 @@ func StartConcierge(withKey ethgo.Key, chainUrl, dataDir string) (context.Cancel
 
 			// TODO: this is *very* naive atm. at minimum, should check that balance exists (DONE) and likely manage state to be sure
 			//  balances are not unwrapped more than once in case of re-orgs, bugs, etc...
-			if err = TxnDoWait(ep.Txn("withdrawTo", fromAddr, value)); err != nil {
+			if err = chain.TxnDoWait(ep.Txn("withdrawTo", fromAddr, value)); err != nil {
 				return err
 			}
 		}

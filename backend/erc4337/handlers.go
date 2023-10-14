@@ -3,15 +3,19 @@ package erc4337
 import (
 	"fmt"
 	"github.com/apex/log"
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/rpc"
 	"github.com/gin-gonic/gin"
 	"github.com/paulgoleary/local-luv-proto/chain"
 	"github.com/paulgoleary/local-luv-proto/config"
 	"github.com/paulgoleary/local-luv-proto/crypto"
+	"github.com/stackup-wallet/stackup-bundler/pkg/entrypoint/execution"
+	"github.com/stackup-wallet/stackup-bundler/pkg/entrypoint/reverts"
 	"github.com/stackup-wallet/stackup-bundler/pkg/userop"
 	"github.com/umbracle/ethgo"
 	"github.com/umbracle/ethgo/contract"
 	"github.com/umbracle/ethgo/jsonrpc"
+	"github.com/umbracle/ethgo/jsonrpc/codec"
 	"math/big"
 	"net/http"
 	"strings"
@@ -33,6 +37,35 @@ func handleRequiredAddress(addrHex string) (ret *ethgo.Address) {
 	return
 }
 
+type errThunk struct {
+	cerr *codec.ErrorObject
+}
+
+func (e errThunk) Error() string {
+	return e.cerr.Error()
+}
+
+func (e errThunk) ErrorData() interface{} {
+	return e.cerr.Data
+}
+
+var _ rpc.DataError = &errThunk{}
+
+func handleSimulationError(err error) {
+	if cerr, ok := err.(*codec.ErrorObject); ok {
+		et := errThunk{cerr: cerr}
+		if etData, ok := et.ErrorData().(string); ok {
+			if strings.HasPrefix(etData, "0xe0cff05f") {
+				result, _ := reverts.NewValidationResult(et)
+				log.Infof("stake: %v, sig failed: %v", result.SenderInfo.Stake.Int64(), result.ReturnInfo.SigFailed)
+			} else {
+				revert, _ := reverts.NewFailedOp(et)
+				log.Infof("validation for failed op: %v", revert.Reason)
+			}
+		}
+	}
+}
+
 type HandlerContext struct {
 	testContext map[string]string
 	chainRpc    *jsonrpc.Client
@@ -40,8 +73,12 @@ type HandlerContext struct {
 	suNodeRpc *rpc.Client
 	suPMRpc   *rpc.Client
 
-	ChainId    *big.Int
-	EntryPoint *contract.Contract
+	ChainId      *big.Int
+	EntryPoint   *contract.Contract
+	ChainKeyAddr ethgo.Address
+
+	simulateUserOp   bool
+	sendUserOpDirect bool
 }
 
 func makeTestContext(testContext map[string]string) (*HandlerContext, error) {
@@ -77,10 +114,22 @@ func MakeContext(config config.Config) (*HandlerContext, error) {
 	hc := &HandlerContext{ChainId: chainId, chainRpc: chainRpc, suNodeRpc: nodeRpc, suPMRpc: pmRpc}
 	log.Infof("connected to chain with url %v, got chain id %v", config.ChainRpcUrl, chainId.Int64())
 
-	hc.EntryPoint, err = chain.LoadReadContractAbi(chainRpc, abiBytes, DefaultEntryPoint)
+	var maybeKey *chain.EcdsaKey
+	if len(config.ChainSKHex) != 0 {
+		if sk, err := crypto.SKFromHex(config.ChainSKHex); err != nil {
+			return nil, err
+		} else {
+			maybeKey = &chain.EcdsaKey{SK: sk}
+		}
+		hc.ChainKeyAddr = maybeKey.Address()
+	}
+	hc.EntryPoint, err = chain.LoadReadContractAbi(chainRpc, abiBytes, DefaultEntryPoint, maybeKey)
 	if err != nil {
 		return nil, err
 	}
+
+	hc.simulateUserOp = false
+	hc.sendUserOpDirect = false
 
 	return hc, nil
 }
@@ -146,7 +195,24 @@ func (hc *HandlerContext) getPaymasterInfo(userOp *userop.UserOperation) (newOp 
 
 func (hc *HandlerContext) sendUserOp(userOp *userop.UserOperation) (reply string, err error) {
 	opMap, _ := userOp.ToMap()
-	err = hc.suNodeRpc.Call(&reply, "eth_sendUserOperation", opMap, DefaultEntryPoint.String())
+	if hc.simulateUserOp {
+		if sim, err := execution.SimulateHandleOp(hc.suNodeRpc, common.Address(DefaultEntryPoint), userOp, common.BigToAddress(big.NewInt(0)), nil); err != nil {
+			log.Infof("userop failed simulation: %v", err.Error())
+		} else {
+			_ = sim
+		}
+	}
+
+	reply = userOp.GetUserOpHash(common.Address(DefaultEntryPoint), hc.ChainId).String()
+	if hc.sendUserOpDirect {
+		err = chain.TxnDoWait(hc.EntryPoint.Txn("handleOps", []map[string]any{opMap}, hc.ChainKeyAddr))
+	} else {
+		err = hc.suNodeRpc.Call(&reply, "eth_sendUserOperation", opMap, DefaultEntryPoint.String())
+	}
+	if err == nil {
+		opJson, _ := userOp.MarshalJSON()
+		log.Infof("submitted user op hash '%v', '%v'", reply, string(opJson))
+	}
 	return
 }
 

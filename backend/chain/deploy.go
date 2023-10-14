@@ -88,7 +88,7 @@ func LoadContract(ec *jsonrpc.Client, name string, withKey ethgo.Key, addr ethgo
 	return
 }
 
-func LoadReadContractAbi(ec *jsonrpc.Client, abiBytes []byte, addr ethgo.Address) (loaded *contract.Contract, err error) {
+func LoadReadContractAbi(ec *jsonrpc.Client, abiBytes []byte, addr ethgo.Address, maybeKey ethgo.Key) (loaded *contract.Contract, err error) {
 	var art *compiler.Artifact
 	if art, err = parseBuildArtifact(abiBytes); err != nil {
 		return
@@ -98,9 +98,11 @@ func LoadReadContractAbi(ec *jsonrpc.Client, abiBytes []byte, addr ethgo.Address
 		return
 	}
 
-	loaded = contract.NewContract(addr, theAbi,
-		contract.WithJsonRPC(ec.Eth()),
-	)
+	opts := []contract.ContractOption{contract.WithJsonRPC(ec.Eth())}
+	if maybeKey != nil {
+		opts = append(opts, contract.WithSender(maybeKey))
+	}
+	loaded = contract.NewContract(addr, theAbi, opts...)
 
 	return
 }

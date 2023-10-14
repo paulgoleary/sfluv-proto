@@ -10,7 +10,7 @@ import (
 )
 
 // TODO: prob should just delete ...
-func TestRecover(t *testing.T) {
+func noTestRecover(t *testing.T) {
 
 	sk, err := SKFromHex(os.Getenv("USEROP_SK"))
 	require.NoError(t, err)

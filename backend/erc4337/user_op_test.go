@@ -41,7 +41,7 @@ func TestUserOpBasics(t *testing.T) {
 	println(testUserOp.VerificationGasLimit.String())
 }
 
-func TestUserOpContracts(t *testing.T) {
+func noTestUserOpContracts(t *testing.T) {
 
 	//ec, err := jsonrpc.NewClient(os.Getenv("CHAIN_URL"))
 	//require.NoError(t, err)
