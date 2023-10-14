@@ -18,7 +18,7 @@ var transferEvent = abi.MustNewEvent(`event Transfer(
 	uint256 value
 )`)
 
-func StartConcierge(withKey ethgo.Key, chainUrl, dataDir string) (context.CancelFunc, error) {
+func StartConcierge(withKey *chain.EcdsaKey, chainUrl, dataDir string) (context.CancelFunc, error) {
 
 	w, err := chain.NewWatcher(chain.SFLUVPolygonMainnetV1_1, transferEvent, chainUrl, dataDir)
 	if err != nil {

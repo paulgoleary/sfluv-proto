@@ -88,7 +88,7 @@ func LoadContract(ec *jsonrpc.Client, name string, withKey ethgo.Key, addr ethgo
 	return
 }
 
-func LoadReadContractAbi(ec *jsonrpc.Client, abiBytes []byte, addr ethgo.Address, maybeKey ethgo.Key) (loaded *contract.Contract, err error) {
+func LoadReadContractAbi(ec *jsonrpc.Client, abiBytes []byte, addr ethgo.Address, maybeKey *EcdsaKey) (loaded *contract.Contract, err error) {
 	var art *compiler.Artifact
 	if art, err = parseBuildArtifact(abiBytes); err != nil {
 		return
