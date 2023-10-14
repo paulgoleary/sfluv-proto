@@ -12,6 +12,8 @@ import (
 	"os"
 
 	"github.com/gin-gonic/gin"
+
+	_ "github.com/joho/godotenv/autoload"
 )
 
 var db = make(map[string]string)
