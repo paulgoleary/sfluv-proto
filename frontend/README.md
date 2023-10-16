@@ -52,3 +52,7 @@ cd frontend
 npm run build
 npm i -g serve
 serve -s build
+
+to select port
+
+serve -s build -l [PORT]
