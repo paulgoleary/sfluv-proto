@@ -2,7 +2,7 @@ import { Web3Auth } from "@web3auth/modal";
 
 // Initialize within useEffect()
 const web3auth = new Web3Auth({
-  clientId: "BJfhyvUB8U_a8MwfgBI25Fjv2DY9tT7MGxeEvzRef_Q8CUJ30yVX3MDZUl0UDyvFkbaKxIr-6xZRpNz43Hdh6cI", // Get your Client ID from the Web3Auth Dashboard
+  clientId: "BG6JbfWeGCYLBd3SXfOjrMTzKN8Bpk2I4cUh2rqoSWNelWMC5qSdzyfe-ecnTJS55MbO5epo84X0pQdns8m9J8U", // Get your Client ID from the Web3Auth Dashboard
   web3AuthNetwork: "sapphire_mainnet", // Web3Auth Network
   chainConfig: {
     chainNamespace: "eip155",

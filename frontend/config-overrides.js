@@ -3,8 +3,8 @@ const webpack = require("webpack");
 module.exports = function override(config) {
   const fallback = config.resolve.fallback || {};
   Object.assign(fallback, {
-    crypto: false, // require.resolve("crypto-browserify") can be polyfilled here if needed
-    stream: false, // require.resolve("stream-browserify") can be polyfilled here if needed
+    crypto: require.resolve("crypto-browserify"),
+    stream: require.resolve("stream-browserify"),
     assert: false, // require.resolve("assert") can be polyfilled here if needed
     http: false, // require.resolve("stream-http") can be polyfilled here if needed
     https: false, // require.resolve("https-browserify") can be polyfilled here if needed
