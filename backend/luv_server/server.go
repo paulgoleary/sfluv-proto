@@ -46,7 +46,7 @@ func setupRouter(hc *erc4337.HandlerContext) *gin.Engine {
 	})
 
 	erc4337Group := r.Group("erc4337")
-	erc4337Group.GET("sender", hc.HandleGetSender)
+	erc4337Group.GET("sender-info", hc.HandleGetSenderInfo)
 
 	erc4337Group.GET("userop/approve", hc.HandleUserOpApprove)
 	erc4337Group.GET("userop/withdrawto", hc.HandleUserOpWithdrawTo)

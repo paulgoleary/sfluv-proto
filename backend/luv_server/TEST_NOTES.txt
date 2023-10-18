@@ -1,7 +1,8 @@
 
 # owner: the owning address - i.e. account with private key - to retrieve sender account - i.e. wallet account address
 # NOTE that the wallet may not yet exist, which will be indicated by a current nonce of 0
-curl 'http://localhost:8080/erc4337/sender?owner=6D64a4aF99563a82B212124604f6d1759376F37F'
+# returns current balance of SFLUV as well
+curl 'http://localhost:8080/erc4337/sender-info?owner=6D64a4aF99563a82B212124604f6d1759376F37F'
 
 # target: should be contract address of base token - e.g. USDC on Polygon mainnet
 # spender: should be address to 'own' the base token, which actually needs to be the SFLUV token contract

@@ -75,6 +75,7 @@ type HandlerContext struct {
 
 	ChainId      *big.Int
 	EntryPoint   *contract.Contract
+	SFLUV        *contract.Contract
 	ChainKeyAddr ethgo.Address
 
 	simulateUserOp   bool
@@ -86,7 +87,12 @@ func makeTestContext(testContext map[string]string) (*HandlerContext, error) {
 }
 
 func MakeContext(config config.Config) (*HandlerContext, error) {
-	abiBytes, err := abiIEP.ReadFile("abi/IEntryPoint.json")
+	abiEPBytes, err := abiIEP.ReadFile("abi/IEntryPoint.json")
+	if err != nil {
+		return nil, err
+	}
+
+	abiSLBytes, err := abiSFLUV.ReadFile("abi/SFLUVv1.json")
 	if err != nil {
 		return nil, err
 	}
@@ -123,7 +129,13 @@ func MakeContext(config config.Config) (*HandlerContext, error) {
 		}
 		hc.ChainKeyAddr = maybeKey.Address()
 	}
-	hc.EntryPoint, err = chain.LoadReadContractAbi(chainRpc, abiBytes, DefaultEntryPoint, maybeKey)
+
+	hc.EntryPoint, err = chain.LoadReadContractAbi(chainRpc, abiEPBytes, DefaultEntryPoint, maybeKey)
+	if err != nil {
+		return nil, err
+	}
+
+	hc.SFLUV, err = chain.LoadReadContractAbi(chainRpc, abiSLBytes, chain.SFLUVPolygonMainnetV1_1, maybeKey)
 	if err != nil {
 		return nil, err
 	}
@@ -168,8 +180,22 @@ func (hc *HandlerContext) getOwnerInfo(ownerAddr ethgo.Address) (nonce *big.Int,
 	var ok bool
 	if nonce, ok = res["nonce"].(*big.Int); !ok {
 		err = fmt.Errorf("unexpected - expected *big.Int for nonce return value")
+		return
 	}
+
 	return
+}
+
+func (hc *HandlerContext) getSenderBalance(senderAddr ethgo.Address) (*big.Int, error) {
+	if res, err := hc.SFLUV.Call("balanceOf", ethgo.Latest, senderAddr); err != nil {
+		return nil, err
+	} else {
+		if balance, ok := res["0"].(*big.Int); !ok {
+			return nil, fmt.Errorf("unexpected - expected *big.Int for balance return value")
+		} else {
+			return balance, nil
+		}
+	}
 }
 
 func (hc *HandlerContext) getPaymasterInfo(userOp *userop.UserOperation) (newOp *userop.UserOperation, err error) {
@@ -216,7 +242,7 @@ func (hc *HandlerContext) sendUserOp(userOp *userop.UserOperation) (reply string
 	return
 }
 
-func (hc *HandlerContext) HandleGetSender(c *gin.Context) {
+func (hc *HandlerContext) HandleGetSenderInfo(c *gin.Context) {
 	q := c.Request.URL.Query()
 	ownerAddr := handleRequiredAddress(q.Get("owner"))
 	if ownerAddr == nil {
@@ -227,7 +253,12 @@ func (hc *HandlerContext) HandleGetSender(c *gin.Context) {
 	if nonce, senderAddr, err := hc.getOwnerInfo(*ownerAddr); err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
 	} else {
-		c.JSON(http.StatusOK, fmt.Sprintf(`{"nonce":%v, "sender": "%v"}`, nonce.Int64(), senderAddr.String()))
+		if balance, err := hc.getSenderBalance(senderAddr); err != nil {
+			c.AbortWithError(http.StatusInternalServerError, err)
+		} else {
+			c.JSON(http.StatusOK, fmt.Sprintf(`{"nonce":%v, "sender": "%v", "balance":%v}`,
+				nonce.Int64(), senderAddr.String(), balance.String()))
+		}
 	}
 }
 

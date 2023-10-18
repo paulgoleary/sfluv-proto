@@ -21,7 +21,7 @@ func TestContextUserOp(t *testing.T) {
 	testContext := gin.CreateTestContextOnly(w, engine)
 
 	testContext.Request, _ = http.NewRequest(http.MethodGet, "/doesntmatter?owner=6D64a4aF99563a82B212124604f6d1759376F37F", nil)
-	mc.HandleGetSender(testContext)
+	mc.HandleGetSenderInfo(testContext)
 
 	println(w.Body.String())
 }
