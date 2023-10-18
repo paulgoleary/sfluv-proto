@@ -56,3 +56,8 @@ serve -s build
 to select port
 
 serve -s build -l [PORT]
+
+### Deployment Notes
+
+Currently tested with npm 9.6.7
+To install specific npm and node versions on Ubuntu, refer to https://www.liquidweb.com/kb/how-to-install-nvm-node-version-manager-for-node-js-on-ubuntu-12-04-lts/
