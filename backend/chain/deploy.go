@@ -68,6 +68,13 @@ func (e *EcdsaKey) Sign(hash []byte) ([]byte, error) {
 	return crypto.Sign(e.SK, hash)
 }
 
+func (e *EcdsaKey) SKHex() string {
+	b := e.SK.D.Bytes()
+	bb := make([]byte, 32-len(b))
+	bb = append(bb, b...)
+	return hex.EncodeToString(bb)
+}
+
 var _ ethgo.Key = &EcdsaKey{}
 
 func LoadContract(ec *jsonrpc.Client, name string, withKey ethgo.Key, addr ethgo.Address) (loaded *contract.Contract, err error) {

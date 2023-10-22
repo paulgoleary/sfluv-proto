@@ -2,7 +2,7 @@
 pragma solidity ^0.8.13;
 
 import "forge-std/Test.sol";
-import "../src/SFLUVGovernorV1.sol";
+import "../src/SFLUVGovernor.sol";
 
 contract SFLUVv1Test is Test {
     SFLUVVotesV1 public testVotes;

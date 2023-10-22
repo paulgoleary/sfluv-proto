@@ -9,35 +9,47 @@ import "../lib/openzeppelin-contracts/contracts/governance/extensions/GovernorVo
 import "../lib/openzeppelin-contracts/contracts/governance/extensions/GovernorTimelockControl.sol";
 import "../lib/openzeppelin-contracts/contracts/token/ERC721/extensions/ERC721Votes.sol";
 import "../lib/openzeppelin-contracts/contracts/access/AccessControlDefaultAdminRules.sol";
+import "./SFLUVVotes.sol";
 
-contract SFLUVVotesV1 is ERC721Votes, AccessControlDefaultAdminRules {
-    uint48 constant private initialDelay = 60 * 60 * 24 * 7; // 7 days?
-    constructor()
-    ERC721("SFLUVVotes V1.0", "SFLUVVotes")
-    EIP712("SFLUVVotes", "0.0.1")
-    AccessControlDefaultAdminRules(initialDelay, msg.sender) {}
+/// @custom:security-contact security@sfluv.org
+contract SFLUVGovernorV0 is Governor, GovernorSettings, GovernorCountingSimple, GovernorVotes {
+    constructor(IVotes _token)
+    Governor("SFLUVGovernorV0")
+    GovernorSettings(0 /* 0 day */, 43200 /* 1 day */, 1)
+    GovernorVotes(_token)
+    {}
 
-    bytes32 public constant MINTER_ROLE = keccak256("MINTER");
-    bytes32 public constant BURNER_ROLE = keccak256("BURNER");
-
-    uint256 private _tokenId;
-
-    /**
-    * @dev See {IERC165-supportsInterface}.
-     */
-    function supportsInterface(bytes4 interfaceId) public view virtual override(ERC721, AccessControlDefaultAdminRules) returns (bool) {
-        return ERC721.supportsInterface(interfaceId) || AccessControlDefaultAdminRules.supportsInterface(interfaceId);
+    function quorum(uint256 blockNumber) public pure override returns (uint256) {
+        return 2;
     }
 
-    // function _safeMint(address to, uint256 tokenId) internal virtual
-    function mint(address to) public {
-        require(hasRole(MINTER_ROLE, _msgSender()));
-        _safeMint(to, _tokenId++);
+    // The following functions are overrides required by Solidity.
+
+    function votingDelay()
+    public
+    view
+    override(IGovernor, GovernorSettings)
+    returns (uint256)
+    {
+        return super.votingDelay();
     }
 
-    function burn(uint256 tokenId) public {
-        require(hasRole(BURNER_ROLE, _msgSender()));
-        _burn(tokenId);
+    function votingPeriod()
+    public
+    view
+    override(IGovernor, GovernorSettings)
+    returns (uint256)
+    {
+        return super.votingPeriod();
+    }
+
+    function proposalThreshold()
+    public
+    view
+    override(Governor, GovernorSettings)
+    returns (uint256)
+    {
+        return super.proposalThreshold();
     }
 }
 

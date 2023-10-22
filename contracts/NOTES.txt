@@ -10,3 +10,22 @@ forge verify-contract --verifier-url https://api.polygonscan.com/api/ 0x58a2993A
 
 # works with config in foundry.toml?
 forge verify-contract --chain polygon 0x58a2993A618Afee681DE23dECBCF535A58A080BA src/SFLUVv1.sol:SFLUVv1
+
+# Deploy V0 Governor to Mumbai w/ 'Polygon Dev' account
+
+forge create --rpc-url https://polygon-mumbai.g.alchemy.com/v2/j8dCQId_xGnyvlQUAinogNkE5gStdUKn \
+    --private-key f2e606e7bcf2e3a9c3919c88bdf720c4e831d6785668e3a1c05be92dc2005bd0 \
+    src/SFLUVVotes.sol:SFLUVVotesV1
+
+Deployer: 0x32A629dE3fb4549EB2B204d37eb9C8CFb0b9AdCf
+Deployed to: 0xAa885a92C8F0C625886d3e97D58cA07bC6Af46D8
+Transaction hash: 0x7b463c531290c848c350fe0c4c27bf503f56b5d9adca6a5969a4e1c7b9a0f01d
+
+forge create --rpc-url https://polygon-mumbai.g.alchemy.com/v2/<API key> \
+    --constructor-args 0xAa885a92C8F0C625886d3e97D58cA07bC6Af46D8 \
+    --private-key <your private key> \
+    src/SFLUVGovernor.sol:SFLUVGovernorV0
+
+Deployer: 0x32A629dE3fb4549EB2B204d37eb9C8CFb0b9AdCf
+Deployed to: 0xeEDbe595DDCFB5AfDbA7E16B3a36B885CbA81A4A
+Transaction hash: 0x2b972179057b58be2ca9545ad3963742eac63668e1bc4cd122e470bccfa0c543

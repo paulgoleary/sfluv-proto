@@ -9,6 +9,9 @@ import "github.com/umbracle/ethgo"
 var MockMumbaiAddr = ethgo.HexToAddress("0x80FD6A0a454045d3E24B5BAa19b9066ae01a0b09")
 var LuvMumbaiAddr = ethgo.HexToAddress("0x39C716D8c6E4D3B45Bc9e60f5C12378433668588")
 
+var LuvVotesMumbaiAddr = ethgo.HexToAddress("0xAa885a92C8F0C625886d3e97D58cA07bC6Af46D8")
+var LuvGovMumbaiAddr = ethgo.HexToAddress("0xeEDbe595DDCFB5AfDbA7E16B3a36B885CbA81A4A")
+
 // Polygon Mainnet
 
 var USDCPolygonMainnet = ethgo.HexToAddress("0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174")
