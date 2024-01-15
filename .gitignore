@@ -26,3 +26,7 @@ yarn-error.log*
 .idea
 
 backend.zip
+
+/frontend/node_modules
+
+frontend/package-lock.json
