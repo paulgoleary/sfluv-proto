@@ -30,28 +30,3 @@ const Root = () => {
 }
 
 export default Root;
-
-{/* <>
-      <div>
-        <h1>Hello World!</h1>
-        <h2>{process.env.REACT_APP_CHAIN_ID}</h2>
-        {!loggedIn && <button onClick={login}>Login</button>}
-        {loggedIn && <>
-          <button onClick={getUserInfo}>Get User Info</button>
-          <button onClick={getAccounts}>Get Accounts</button>
-          <button onClick={getBalance}>Get User Balance</button>
-          <form onSubmit={(e) => {
-            e.preventDefault();
-            signMessage(signatureMessage);
-          }}>
-            <input
-              onChange={(e) => {
-                setSignatureMessage(e.target.value)
-              }}
-              value={signatureMessage}
-            ></input>
-            <button type='submit'>Sign Message</button>
-          </form>
-        </>}
-      </div>
-    </> */}
