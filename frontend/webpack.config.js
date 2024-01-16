@@ -1,5 +1,7 @@
 
-const Dotenv = require('dotenv-webpack')
+const Dotenv = require('dotenv-webpack');
+const webpack = require('webpack');
+
 
 
 const HtmlWebPackPlugin = require("html-webpack-plugin");
@@ -29,7 +31,16 @@ module.exports = {
     }
     ]
   },
-  plugins: [htmlPlugin, new Dotenv()],
+  plugins: [
+    htmlPlugin,
+    new Dotenv(),
+    new webpack.ProvidePlugin({
+      process: 'process/browser',
+    }),
+    new webpack.ProvidePlugin({
+      Buffer: ['buffer', 'Buffer'],
+  }),
+  ],
   resolve: {
     fallback: {
       "path": require.resolve("path-browserify"),
@@ -37,6 +48,9 @@ module.exports = {
       "os": require.resolve("os-browserify"),
       "stream": require.resolve("stream-browserify"),
       "buffer": require.resolve("buffer/"),
+      "http": require.resolve("stream-http"),
+      "https": require.resolve("https-browserify"),
+      "zlib": require.resolve("browserify-zlib")
     }
   }
 };
