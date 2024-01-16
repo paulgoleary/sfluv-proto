@@ -1,5 +1,7 @@
 # Feel the SF LUV
 
+## Backend
+
 To build the server:
 
 ```
@@ -24,4 +26,23 @@ It can be configured to point elsewhere with an environment variable, e.g.:
 
 ```
 $ CHAIN_URL='https://rpc-mumbai.maticvigil.com' ~/go/bin/luv_server
+```
+
+## Frontend
+
+
+To build the frontend:
+
+```
+$ cd frontend
+```
+
+```
+$ npm i
+```
+
+To run the frontend:
+
+```
+$ npm run start
 ```
