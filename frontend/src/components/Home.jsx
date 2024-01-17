@@ -62,6 +62,45 @@ const Home = () => {
     console.log(signedMessage);
   };
 
+  const getERC20Balance = async (contractAddress) => {
+    const web3 = new Web3(provider);
+
+    const balanceOfABI = [
+      {
+        "constant": true,
+        "inputs": [
+            {
+                "name": "_owner",
+                "type": "address"
+            }
+        ],
+        "name": "balanceOf",
+        "outputs": [
+            {
+                "name": "balance",
+                "type": "uint256"
+            }
+        ],
+        "payable": false,
+        "stateMutability": "view",
+        "type": "function"
+      },
+    ];
+
+    const contract = new web3.eth.Contract(balanceOfABI, contractAddress);
+    const address = (await web3.eth.getAccounts())[0];
+
+    const getTokenBalance = async () => {
+
+      const result = await contract.methods.balanceOf(address).call();
+
+      const formattedResult = web3.utils.fromWei(result, "mwei"); // 29803630.997051883414242659
+
+      return formattedResult;
+    }
+    console.log(await getTokenBalance());
+  }
+
   const logout = async () => {
     await web3auth.logout();
     setProvider(null);
@@ -77,6 +116,7 @@ const Home = () => {
       <button onClick={getUserInfo}>Get User Info</button>
       <button onClick={getAccounts}>Get Accounts</button>
       <button onClick={getBalance}>Get User Balance</button>
+      <button onClick={() => getERC20Balance('0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359')}>Get USDC Balance</button>
       <form onSubmit={(e) => {
         e.preventDefault();
         signMessage(signatureMessage);

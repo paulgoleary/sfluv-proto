@@ -1,7 +1,7 @@
 import web3auth from '../web3auth.js';
 import React, { useContext, useState } from 'react';
 import Web3Context from '../Web3Context.js';
-import { WALLET_ADAPTERS } from '@web3auth/base';
+import { WALLET_ADAPTERS, IProvider } from '@web3auth/base';
 
 
 const Root = () => {
