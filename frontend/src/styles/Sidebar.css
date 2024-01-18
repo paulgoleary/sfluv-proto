@@ -1,7 +1,8 @@
 #sideBar {
   position: absolute;
-  height: calc(100vh - 60px);
+  height: calc(100vh - 81px);
   text-align: left;
+  background-color: whitesmoke;
 }
 
 .sideBarItem {

@@ -1,0 +1,5 @@
+#outletBackground {
+  height: calc(100vh - 81px);
+  width: 100%;
+  position: absolute;
+}

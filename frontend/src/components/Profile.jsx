@@ -35,6 +35,7 @@ const Profile = () => {
         <div>{userName}</div>
         <div>{userEmail}</div>
         <div style={{textTransform: 'capitalize'}}>{loggedInWith}</div>
+        <button onClick={() => {console.log('working')}} />
       </div>
     </>
   )
