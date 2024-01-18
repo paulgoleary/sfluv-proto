@@ -36,6 +36,8 @@
     "process": "^0.11.10",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-icons": "^5.0.1",
+    "react-pro-sidebar": "^1.1.0-alpha.1",
     "react-router-dom": "^6.21.2",
     "stream-browserify": "^3.0.0",
     "stream-http": "^3.2.0",
@@ -45,7 +47,9 @@
     "webpack": "^5.89.0"
   },
   "devDependencies": {
+    "@svgr/webpack": "^8.1.0",
     "buffer": "^6.0.3",
+    "svg-inline-loader": "^0.8.2",
     "webpack-cli": "^5.1.4",
     "webpack-dev-server": "^4.15.1"
   },

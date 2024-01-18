@@ -1,0 +1,9 @@
+#sideBar {
+  position: absolute;
+  height: calc(100vh - 60px);
+  text-align: left;
+}
+
+.sideBarItem {
+  border-bottom: 1px solid rgb(241, 241, 241);
+}

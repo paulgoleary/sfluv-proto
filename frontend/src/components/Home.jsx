@@ -7,10 +7,6 @@ const Home = () => {
   const { web3auth, provider, setProvider, loggedIn, setLoggedIn } = useContext(Web3Context);
   const [signatureMessage, setSignatureMessage] = useState('');
 
-  const getUserInfo = async () => {
-    const user = await web3auth.getUserInfo();
-    console.log(user);
-  };
 
   const getBalance = async () => {
     if (!provider) {
@@ -113,7 +109,6 @@ const Home = () => {
       <div>Home</div>
       <button onClick={logout}>Log Out</button>
       <h2>{process.env.REACT_APP_CHAIN_ID}</h2>
-      <button onClick={getUserInfo}>Get User Info</button>
       <button onClick={getAccounts}>Get Accounts</button>
       <button onClick={getBalance}>Get User Balance</button>
       <button onClick={() => getERC20Balance('0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359')}>Get USDC Balance</button>
