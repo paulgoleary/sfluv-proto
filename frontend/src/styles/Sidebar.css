@@ -3,8 +3,15 @@
   height: calc(100vh - 81px);
   text-align: left;
   background-color: whitesmoke;
+  border-left: 1px solid lightgray;
+  opacity: 1;
+  z-index: 1000;
 }
 
 .sideBarItem {
   border-bottom: 1px solid rgb(241, 241, 241);
+}
+
+.sideBarItem:hover{
+  background-color: rgb(186, 186, 186);
 }

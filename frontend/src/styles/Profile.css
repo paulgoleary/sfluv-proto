@@ -1,0 +1,36 @@
+.profileSection {
+  margin-left: 5%;
+  margin-right: 5%;
+  padding-bottom: 5vh;
+  padding-top: 5vh;
+  border-bottom: 1px solid lightgray;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  text-align: left;
+}
+
+.profileSection {
+}
+
+#profileSections :last-child{
+  border-bottom: none;
+}
+
+#logoutButton {
+  margin-left: 5%;
+  margin-right: 5%;
+  margin-bottom: 5vh;
+  margin-top: 7vh;
+}
+
+.col1 {
+  font-weight: bold;
+}
+
+.col2 {
+
+}
+
+.capitalized {
+  text-transform: capitalize;
+}

@@ -3,14 +3,10 @@ import { Sidebar, Menu, MenuItem, SubMenu } from 'react-pro-sidebar';
 import { useNavigate } from 'react-router-dom';
 import '../styles/Sidebar.css';
 
-const SidebarComponent = ({ viewSidebar, currentPath, setCurrentPath }) => {
+const SidebarComponent = ({ viewSidebar, currentPath }) => {
 
   const navigate = useNavigate();
 
-  const navigateAndUpdatePath = (path) => {
-    setCurrentPath(path);
-    navigate(path);
-  }
 
   return (
     <Sidebar
@@ -29,28 +25,28 @@ const SidebarComponent = ({ viewSidebar, currentPath, setCurrentPath }) => {
         <MenuItem
           className={'sideBarItem'}
           active={true}
-          onClick={() => navigateAndUpdatePath('/wallet')}
-          style={{
-            backgroundColor: currentPath === '/wallet' ? '#eb6c6c' : 'whitesmoke'
-          }}
+          onClick={() => navigate('/wallet')}
+          style={currentPath === '/wallet' ? {
+            backgroundColor: '#eb6c6c'
+          } : {}}
         >
           Wallet
         </MenuItem>
         <MenuItem
           className={'sideBarItem'}
-          onClick={() => navigateAndUpdatePath('/unwrap')}
-          style={{
-            backgroundColor: currentPath === '/unwrap' ? '#eb6c6c' : 'whitesmoke'
-          }}
+          onClick={() => navigate('/unwrap')}
+          style={currentPath === '/unwrap' ? {
+            backgroundColor: '#eb6c6c'
+          } : {}}
         >
           Unwrap Tool
         </MenuItem>
         <MenuItem
           className={'sideBarItem'}
-          onClick={() => navigateAndUpdatePath('/profile')}
-          style={{
-            backgroundColor: currentPath === '/profile' ? '#eb6c6c' : 'whitesmoke'
-          }}
+          onClick={() => navigate('/profile')}
+          style={currentPath === '/profile' ? {
+            backgroundColor: '#eb6c6c'
+          } : {}}
         >
           My Profile
         </MenuItem>

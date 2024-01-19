@@ -1,6 +1,7 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Web3Context from '../Web3Context.js';
+import '../styles/Profile.css';
 
 const Profile = () => {
   const { web3auth, provider, setProvider, loggedIn, setLoggedIn } = useContext(Web3Context);
@@ -29,15 +30,34 @@ const Profile = () => {
     getUserInfo();
   }, []);
 
+
+  const logout = async () => {
+    await web3auth.logout();
+    setProvider(null);
+    setLoggedIn(false);
+    navigate('/');
+    console.log("logged out");
+  };
+
+
   return (
-    <>
-      <div>
-        <div>{userName}</div>
-        <div>{userEmail}</div>
-        <div style={{textTransform: 'capitalize'}}>{loggedInWith}</div>
-        <button onClick={() => {console.log('working')}} />
+    <div id='profilePage' className='pageTemplate'>
+      <div id='profileSections'>
+        <div className='profileSection'>
+          <span className='col1'>Name: </span>
+          <span className='col2'>{userName}</span>
+        </div>
+        <div className='profileSection'>
+          <span className='col1'>Email: </span>
+          <span className='col2'>{userEmail}</span>
+        </div>
+        <div  className='profileSection capitalized'>
+          <span className='col1'>Login Provider: </span>
+          <span className='col2'>{loggedInWith}</span>
+        </div>
       </div>
-    </>
+      <button id='logoutButton' className='button2' onClick={logout}>Log Out</button>
+    </div>
   )
 }
 
