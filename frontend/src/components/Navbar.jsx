@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Logo from '../../assets/LUV_LOGO.svg'
+import Logo from '../../assets/LUV_LOGO.svg';
 import { MdDehaze } from "react-icons/md";
 import '../styles/Navbar.css';
 

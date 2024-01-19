@@ -1,0 +1,23 @@
+#loginPage {
+  margin-top: 10vh;
+  width: 60%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+#loginButton {
+  margin-top: 10vh;
+  margin-bottom: 10vh;
+  width: 150px;
+}
+
+#loginLogo {
+  width: 25vh;
+  display: block;
+  margin: auto;
+  margin-top: 5vh;
+}
+
+h1 {
+  font-size: max(35px, 5vh);
+}

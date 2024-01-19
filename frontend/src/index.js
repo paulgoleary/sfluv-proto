@@ -27,6 +27,8 @@ const App = () => {
 
         if (web3auth.connected) {
           setLoggedIn(true);
+        } else {
+          setLoggedIn(false);
         }
       } catch (error) {
         console.error(error);
