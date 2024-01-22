@@ -9,6 +9,7 @@ import UnwrapTool from './components/UnwrapTool.jsx';
 import Home from './components/Home.jsx';
 import web3auth from './web3auth.js';
 import Web3Context from './Web3Context.js';
+import Web3 from 'web3';
 import { createRoot } from 'react-dom/client';
 import './style.css';
 import 'dotenv';
@@ -18,6 +19,7 @@ const App = () => {
 
   const [provider, setProvider] = useState();
   const [loggedIn, setLoggedIn] = useState();
+  const [web3, setWeb3] = useState();
 
   useEffect(() => {
     const init = async () => {
@@ -38,6 +40,15 @@ const App = () => {
     init();
   }, []);
 
+
+  useEffect(() => {
+    if(provider) {
+      setWeb3(new Web3(provider));
+    } else {
+      setWeb3(undefined);
+    }
+  }, [provider])
+
   const router = createBrowserRouter([
     {path: '/', element: <Root />, errorElement: <ErrorPage />, children: [
       {path: '/', element: <Home />},
@@ -49,7 +60,7 @@ const App = () => {
   ])
 
   return (
-    <Web3Context.Provider value={{ provider, setProvider, loggedIn, setLoggedIn, web3auth }}>
+    <Web3Context.Provider value={{ provider, setProvider, loggedIn, setLoggedIn, web3auth, web3 }}>
       <RouterProvider router={router} />
     </Web3Context.Provider>
   );

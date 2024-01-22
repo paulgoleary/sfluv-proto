@@ -1,0 +1,25 @@
+#depositModal {
+  margin-left: 15%;
+  margin-right: 15%;
+  margin-top: 20vh;
+  margin-bottom: 20vh;
+}
+
+.walletButton {
+  margin: 2%;
+  max-width: 150px;
+}
+
+#address {
+  overflow-wrap: break-word;
+  width: 90%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+#warningMessage {
+  font-size: smaller;
+  width: 90%;
+  margin-left: auto;
+  margin-right: auto;
+}

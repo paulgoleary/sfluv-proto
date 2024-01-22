@@ -26,24 +26,6 @@ const Home = () => {
     }
   }, [loggedIn]);
 
-  const getBalance = async () => {
-    if (!provider) {
-      console.error("provider not initialized yet");
-      return;
-    }
-    const web3 = new Web3(provider);
-
-    // Get user's Ethereum public address
-    const address = (await web3.eth.getAccounts())[0];
-
-    // Get user's balance in ether
-    const balance = web3.utils.fromWei(
-      await web3.eth.getBalance(address), // Balance is in wei
-      "ether"
-    );
-    console.log(balance);
-  };
-
   const getAccounts = async () => {
     if (!provider) {
       console.error("provider not initialized yet");
@@ -76,44 +58,7 @@ const Home = () => {
     console.log(signedMessage);
   };
 
-  const getERC20Balance = async (contractAddress) => {
-    const web3 = new Web3(provider);
 
-    const balanceOfABI = [
-      {
-        "constant": true,
-        "inputs": [
-            {
-                "name": "_owner",
-                "type": "address"
-            }
-        ],
-        "name": "balanceOf",
-        "outputs": [
-            {
-                "name": "balance",
-                "type": "uint256"
-            }
-        ],
-        "payable": false,
-        "stateMutability": "view",
-        "type": "function"
-      },
-    ];
-
-    const contract = new web3.eth.Contract(balanceOfABI, contractAddress);
-    const address = (await web3.eth.getAccounts())[0];
-
-    const getTokenBalance = async () => {
-
-      const result = await contract.methods.balanceOf(address).call();
-
-      const formattedResult = web3.utils.fromWei(result, "mwei"); // 29803630.997051883414242659
-
-      return formattedResult;
-    }
-    console.log(await getTokenBalance());
-  }
 
   return (
     <>
