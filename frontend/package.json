@@ -5,7 +5,9 @@
   "main": "index.jsx",
   "scripts": {
     "test": "npm jest",
-    "start": "webpack server --config ./webpack.config.js"
+    "start": "webpack server --config ./webpack.config.js",
+    "start-prod": "webpack serve --open --config ./webpack.dev.js",
+    "build-prod": "webpack --config ./webpack.prod.js"
   },
   "dependencies": {
     "@babel/core": "^7.23.6",
