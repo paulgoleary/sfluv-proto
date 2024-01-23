@@ -16,6 +16,8 @@ curl 'http://localhost:8080/erc4337/userop/approve?target=2791Bca1f2de4661ED88A3
 # owner: the 'owning' account of smart contract wallet; i.e. the wallet address of the private key that will sign user ops
 curl 'http://localhost:8080/erc4337/userop/withdrawto?target=2791Bca1f2de4661ED88A30C99A7a9449Aa84174&to=58a2993A618Afee681DE23dECBCF535A58A080BA&amount=100000000&owner=6D64a4aF99563a82B212124604f6d1759376F37F'
 
+curl 'http://localhost:8080/erc4337/userop/transfer?target=2791Bca1f2de4661ED88A30C99A7a9449Aa84174&to=58a2993A618Afee681DE23dECBCF535A58A080BA&amount=100000000&owner=6D64a4aF99563a82B212124604f6d1759376F37F'
+
 curl --location -g --request POST 'http://localhost:8080/erc4337/userop/send' \
 --header 'Content-Type: application/json' \
 --header 'Accept: application/json' \

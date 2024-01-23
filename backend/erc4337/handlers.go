@@ -262,6 +262,8 @@ func (hc *HandlerContext) HandleGetSenderInfo(c *gin.Context) {
 	}
 }
 
+// TODO: this looks wrong now ...?
+
 func (hc *HandlerContext) HandleUserOpApprove(c *gin.Context) {
 
 	q := c.Request.URL.Query()
@@ -320,6 +322,48 @@ func (hc *HandlerContext) HandleUserOpWithdrawTo(c *gin.Context) {
 	}
 
 	if op, err := UserOpWithdrawTo(nonce, *ownerAddr, senderAddr, *targetAddr, *toAddr, amount, gasPrice); err != nil {
+		c.AbortWithError(http.StatusInternalServerError, err)
+		return
+	} else {
+		if op, err = hc.getPaymasterInfo(op); err != nil {
+			c.AbortWithError(http.StatusInternalServerError, err)
+			return
+		}
+		opJson, _ := op.ToMap()
+		c.JSON(http.StatusOK, opJson)
+	}
+}
+
+// TODO: copy pasta from withdraw ...
+
+func (hc *HandlerContext) HandleUserOpTransfer(c *gin.Context) {
+
+	q := c.Request.URL.Query()
+
+	targetAddr := handleRequiredAddress(q.Get("target"))
+	toAddr := handleRequiredAddress(q.Get("to"))
+	ownerAddr := handleRequiredAddress(q.Get("owner"))
+
+	amount, ok := new(big.Int).SetString(q.Get("amount"), 10)
+
+	if targetAddr == nil || toAddr == nil || ownerAddr == nil || !ok {
+		c.AbortWithError(http.StatusBadRequest, fmt.Errorf("invalid or missing parameter(s)"))
+		return
+	}
+
+	nonce, senderAddr, err := hc.getOwnerInfo(*ownerAddr)
+	if err != nil {
+		c.AbortWithError(http.StatusInternalServerError, err)
+		return
+	}
+
+	gasPrice, err := hc.getGasPrice()
+	if err != nil {
+		c.AbortWithError(http.StatusInternalServerError, err)
+		return
+	}
+
+	if op, err := UserOpTransfer(nonce, *ownerAddr, senderAddr, *targetAddr, *toAddr, amount, gasPrice); err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
 		return
 	} else {
