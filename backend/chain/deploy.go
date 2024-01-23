@@ -77,6 +77,20 @@ func (e *EcdsaKey) SKHex() string {
 
 var _ ethgo.Key = &EcdsaKey{}
 
+type AddressKey struct {
+	Addr ethgo.Address
+}
+
+func (a AddressKey) Address() ethgo.Address {
+	return a.Addr
+}
+
+func (a AddressKey) Sign(hash []byte) ([]byte, error) {
+	panic("not implemented")
+}
+
+var _ ethgo.Key = &AddressKey{}
+
 func LoadContract(ec *jsonrpc.Client, name string, withKey ethgo.Key, addr ethgo.Address) (loaded *contract.Contract, err error) {
 	var art *compiler.Artifact
 	if art, err = getBuildArtifact(name); err != nil {
