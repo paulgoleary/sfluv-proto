@@ -50,6 +50,7 @@ func setupRouter(hc *erc4337.HandlerContext) *gin.Engine {
 
 	erc4337Group.GET("userop/approve", hc.HandleUserOpApprove)
 	erc4337Group.GET("userop/withdrawto", hc.HandleUserOpWithdrawTo)
+	erc4337Group.GET("userop/transfer", hc.HandleUserOpTransfer)
 
 	erc4337Group.POST("userop/send", hc.HandleUserOpSend)
 

@@ -29,9 +29,11 @@ func makeExecute(toAddr ethgo.Address, value *big.Int, m *abi.Method, args ...in
 var mintMethod, _ = abi.NewMethod("function mint(address sender, uint256 amount)")
 var approveMethod, _ = abi.NewMethod("function approve(address spender, uint256 amount) external returns (bool)")
 var withdrawToMethod, _ = abi.NewMethod("function withdrawTo(address account, uint256 amount) external returns (bool)")
+var transferMethod, _ = abi.NewMethod("function transfer(address,uint256)")
 
 var DefaultInitCodeGas = big.NewInt(300_000)
 var DefaultMintGasLimit = big.NewInt(200_000)
+var DefaultTransferGasLimit = big.NewInt(200_000) // TODO: too high?
 var DefaultApproveGasLimit = big.NewInt(200_000)
 var DefaultWithdrawToGasLimit = big.NewInt(200_000)
 
@@ -67,6 +69,14 @@ func UserOpMint(nonce *big.Int, owner, sender, mintTargetAddr, toAddr ethgo.Addr
 		return nil, err
 	} else {
 		return makeBaseOp(nonce, owner, sender, DefaultMintGasLimit, big.NewInt(2_000_000_000), callData)
+	}
+}
+
+func UserOpTransfer(nonce *big.Int, owner, sender, transferTargetAddr, toAddr ethgo.Address, amt, gas *big.Int) (*userop.UserOperation, error) {
+	if callData, err := makeExecute(transferTargetAddr, big.NewInt(0), transferMethod, toAddr, amt); err != nil {
+		return nil, err
+	} else {
+		return makeBaseOp(nonce, owner, sender, DefaultTransferGasLimit, gas, callData)
 	}
 }
 
