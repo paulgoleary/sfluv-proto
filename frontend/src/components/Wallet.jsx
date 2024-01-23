@@ -12,6 +12,7 @@ const Wallet = () => {
   const { web3, web3auth, provider, setProvider, loggedIn, setLoggedIn } = useContext(Web3Context);
 
   const [USDCBalance, setUSDCBalance] = useState();
+  const [USDCeBalance, setUSDCeBalance] = useState();
   const [MATICBalance, setMATICBalance] = useState();
   const [SFLUVBalance, setSFLUVBalance] = useState();
 
@@ -96,8 +97,11 @@ const Wallet = () => {
           .catch(() => console.error('Couldn\'t get SFLUV balance'));
         let MATIC = await getMATICBalance()
           .catch(() => console.error('Couldn\'t get MATIC balance'));
+        let USDCe = await getERC20Balance('0x2791bca1f2de4661ed88a30c99a7a9449aa84174')
+          .catch(() => console.error('Couldn\'t get USDC.e balance'));
 
         setUSDCBalance(formatBalance(USDC));
+        setUSDCeBalance(formatBalance(USDCe));
         setSFLUVBalance(formatBalance(SFLUV));
         setMATICBalance(formatMATICBalance(MATIC));
 
@@ -139,6 +143,10 @@ const Wallet = () => {
           <div className='profileSection'>
             <span className='col1'>USDC: </span>
             <span className='col2'>{USDCBalance}</span>
+          </div>
+          <div className='profileSection'>
+            <span className='col1'>USDC.e: </span>
+            <span className='col2'>{USDCeBalance}</span>
           </div>
           <div  className='profileSection capitalized'>
             <span className='col1'>MATIC: </span>
