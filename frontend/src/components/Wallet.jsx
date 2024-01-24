@@ -345,6 +345,7 @@ const Wallet = () => {
                         </div>
                       </div>
                     ))}
+                    <p id='warningMessage'><b>Please</b> be sure all transactions are being sent on <b>{process.env.REACT_APP_CHAIN_DISPLAY_NAME}</b></p>
                   </div>}
                   {sendingStage === 1 && <div>
                     <h1 style={{marginBottom: '0px'}}>To Address</h1>
