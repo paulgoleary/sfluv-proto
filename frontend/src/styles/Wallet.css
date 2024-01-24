@@ -5,6 +5,13 @@
   margin-bottom: 20vh;
 }
 
+#sendModal {
+  margin-left: 15%;
+  margin-right: 15%;
+  margin-top: 10vh;
+  margin-bottom: 20vh;
+}
+
 .walletButton {
   margin: 2%;
   max-width: 150px;
@@ -22,4 +29,79 @@
   width: 90%;
   margin-left: auto;
   margin-right: auto;
+}
+
+#recipientAddressInput {
+  border: none;
+  outline: none;
+  height: 5vh;
+  width: 80%;
+  border-radius: 10px;
+  margin: auto;
+  font-size: 3vh;
+  padding-left: 5%;
+  padding-right: 5%;
+  margin-bottom: 3vh;
+  text-align: center;
+}
+
+#addressLabel {
+  display: block;
+  margin: 2vh;
+  margin-top: 5vh;
+}
+
+.sendingCoinItem {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  width: 90%;
+  margin: auto;
+  border-top: 1px solid lightgray;
+  cursor: pointer
+}
+
+.sendingCoinItem:last-child {
+  border-bottom: 1px solid lightgray;
+  margin-bottom: 2vh;
+}
+
+.sendingCoinItem:hover {
+  background-color: rgb(235, 234, 234);
+}
+
+#sendingAmount {
+  text-align: center;
+  border: none;
+  font-size: 65px;
+  width: 90%;
+  font-weight: bold;
+  background-color: transparent;
+  outline: none;
+  margin-bottom: 20px;
+}
+
+#nextButton {
+  margin-top: 2vh;
+  margin-bottom: 2vh;
+}
+
+#sendingAddress {
+  overflow-x: scroll;
+  overflow-wrap: break-word;
+}
+
+#qrLoader {
+  position: relative;
+  z-index: 0;
+  top: 15vh;
+}
+
+
+::placeholder {
+  color: lightgray;
+  opacity: 1; /* Firefox */
+}
+
+::-ms-input-placeholder { /* Edge 12 -18 */
+  color: lightgray;
 }

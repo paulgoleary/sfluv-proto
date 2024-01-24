@@ -45,4 +45,14 @@ body {
   background-color: #ca6161;
 }
 
+.disabledButton {
+  background-color: #eb6c6c8f;
+  border: none;
+  height: 50px;
+  width: 200px;
+  color: whitesmoke;
+  font-weight: bold;
+  border-radius: 10px;
+}
+
 

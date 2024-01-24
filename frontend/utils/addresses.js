@@ -1,0 +1,8 @@
+const addresses = {
+  usdc: '0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359',
+  usdce: '0x2791bca1f2de4661ed88a30c99a7a9449aa84174',
+  sfluv: '0x58a2993A618Afee681DE23dECBCF535A58A080BA',
+  matic: '0x0000000000000000000000000000000000001010'
+}
+
+export default addresses;
