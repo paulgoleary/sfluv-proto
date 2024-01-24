@@ -459,7 +459,7 @@ const Wallet = () => {
                   </div>}
                   {sendingStage === 4 && <div>
                     <h1>Sent!</h1>
-                    <AiFillCheckCircle style={{color: '#eb6c6c', height: '10vh'}}/>
+                    <AiFillCheckCircle style={{color: '#eb6c6c'}} size='7vh'/>
                     <h3>{coinToSendName}</h3>
                     <div id='profileSections'>
                       <div className='profileSection'>
@@ -470,11 +470,7 @@ const Wallet = () => {
                         <span className='col1'><b>Amount: </b></span>
                         <span className='col2'>{sendingAmount}</span>
                       </div>
-                      <div className='profileSection'>
-                        <span className='col1'><b>Balance Left: </b></span>
-                        <span className='col2'>{coinToSendBalance - sendingAmount}</span>
-                      </div>
-                      <p>Balance in wallet may take up to a minute to update</p>
+                      <p style={{maxWidth: '90%', margin: 'auto', marginTop: '5px'}}>Balance in wallet may take up to a minute to update</p>
                     </div>
                   </div>}
                   </>
