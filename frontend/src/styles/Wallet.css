@@ -86,7 +86,7 @@
 }
 
 #sendingAddress {
-  overflow-x: scroll;
+  overflow-x: hidden;
   overflow-wrap: break-word;
 }
 
