@@ -34,7 +34,7 @@ const UnwrapTool = () => {
 
   const getAddresses = async () => {
     const owner = (await web3.eth.getAccounts())[0];
-    const wallet = await axios.get(`http://${links.server}:8080/erc4337/sender-info?owner=${owner}`)
+    const wallet = await axios.get(`${links.server}/erc4337/sender-info?owner=${owner}`)
       .then((res) => JSON.parse(res.data).sender)
       .catch(console.error);
     await getSFLUVBalance(wallet);
@@ -67,7 +67,7 @@ const UnwrapTool = () => {
       return hash;
     }
 
-    const transferLink = `http://${links.server}/erc4337/userop/withdrawto?target=${formatHash(tokenContractAddress)}&to=${toAddress}&amount=${amount}&owner=${owner}
+    const transferLink = `${links.server}/erc4337/userop/withdrawto?target=${formatHash(tokenContractAddress)}&to=${toAddress}&amount=${amount}&owner=${owner}
     `
     const contract = await axios.get(transferLink)
       .catch((err) => console.error(err));
@@ -92,7 +92,7 @@ const UnwrapTool = () => {
     const signedUserOp = await signUserOp(web3, privateKey, userOpData, ownerAccountAddress);
 
     await axios.post(
-      `http://${links.server}:8080/erc4337/userop/send`,
+      `${links.server}/erc4337/userop/send`,
       {entryPoint: process.env.REACT_APP_ENTRYPOINT, op: signedUserOp},
       {headers: {
         'Content-Type': 'application/json',

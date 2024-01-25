@@ -128,7 +128,7 @@ const Wallet = () => {
       const getWalletAddress = async () => {
         console.log(web3);
         const owner = (await web3.eth.getAccounts())[0];
-        const wallet = await axios.get(`http://${links.server}:8080/erc4337/sender-info?owner=${owner}`)
+        const wallet = await axios.get(`${links.server}/erc4337/sender-info?owner=${owner}`)
           .then((res) => JSON.parse(res.data).sender)
           .catch(console.error)
         console.log('Owner: ' + owner);
@@ -165,7 +165,7 @@ const Wallet = () => {
   const makeSendContract = async (tokenContractAddress, amount, toAddress = walletAddress, owner = ownerAccountAddress) => {
 
 
-    const transferLink = `http://${links.server}/erc4337/userop/transfer?target=${formatHash(tokenContractAddress)}&to=${formatHash(toAddress)}&amount=${amount}&owner=${formatHash(owner)}
+    const transferLink = `${links.server}/erc4337/userop/transfer?target=${formatHash(tokenContractAddress)}&to=${formatHash(toAddress)}&amount=${amount}&owner=${formatHash(owner)}
     `
     const contract = await axios.get(transferLink)
       .catch((err) => console.error(err));
@@ -180,7 +180,7 @@ const Wallet = () => {
     const signedUserOp = await signUserOp(web3, privateKey, userOpData, ownerAccountAddress);
 
     await axios.post(
-      `http://${links.server}:8080/erc4337/userop/send`,
+      `${links.server}/erc4337/userop/send`,
       {entryPoint: process.env.REACT_APP_ENTRYPOINT, op: signedUserOp},
       {headers: {
         'Content-Type': 'application/json',
