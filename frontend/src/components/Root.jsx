@@ -1,5 +1,5 @@
 import React, { useState, useContext, useEffect } from 'react';
-import { Outlet, useLocation } from 'react-router-dom';
+import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import Web3Context from '../Web3Context.js';
 import Navbar from './Navbar.jsx';
 import Login from './Login.jsx';
@@ -13,6 +13,8 @@ const Root = () => {
   const [viewSidebar, setViewSidebar] = useState(false);
   const [currentPath, setCurrentPath] = useState(false);
 
+  const navigate = useNavigate();
+
   const toggleSidebar = () => {
     setViewSidebar(!viewSidebar);
   }
@@ -22,6 +24,12 @@ const Root = () => {
       setViewSidebar(false);
     }
   }
+
+  useEffect(() => {
+    if(loggedIn === false) {
+      navigate('/login', { replace: true });
+    }
+  }, [loggedIn]);
 
   useEffect(() => {
     setCurrentPath(location.pathname);
@@ -34,19 +42,11 @@ const Root = () => {
     setCurrentPath(loco.pathname);
   }, [loco]);
 
-  useEffect(() => {
-    if(loggedIn === false) {
-      setCurrentPath('/');
-    }
-  }, [loggedIn]);
+
 
 
   return (
     <div>
-      {loggedIn === false &&
-        <Login />
-      }
-      {loggedIn &&
       <>
         <Navbar
           toggleSidebar={toggleSidebar}
@@ -56,11 +56,10 @@ const Root = () => {
           viewSidebar={viewSidebar}
           currentPath={currentPath}
         />
-        <div id='outletBackground' onClick={() => setViewSidebar(false)}>
-          <Outlet />
-        </div>
       </>
-      }
+      <div id='outletBackground' onClick={() => setViewSidebar(false)}>
+        <Outlet />
+      </div>
     </div>
   );
 }

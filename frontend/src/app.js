@@ -56,7 +56,8 @@ const App = () => {
       {path: '/wallet', element: <Wallet />},
       {path: '/unwrap', element: <UnwrapTool />},
       {path: '/error', element: <ErrorPage />},
-    ]}
+    ]},
+    {path: '/login', element: <Login />, errorElement: <ErrorPage />}
   ])
 
   return (

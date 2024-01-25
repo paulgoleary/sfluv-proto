@@ -55,6 +55,7 @@ const Wallet = () => {
     // {name: 'MATIC', address: addresses.matic, balance: MATICBalance}
   ]
 
+
   useEffect(() => {
     if(!sending) {
       setSendingStage(0);
