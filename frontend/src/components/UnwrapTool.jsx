@@ -1,4 +1,5 @@
 import React, { useState, useContext, useEffect } from 'react';
+import { AiFillCheckCircle } from "react-icons/ai";
 import CircleLoader from 'react-spinners/ClipLoader';
 import Web3Context from '../Web3Context.js';
 import getERC20Balance from '../models/getERC20Balance';
@@ -18,6 +19,8 @@ const UnwrapTool = () => {
   const [unwrapAmount, setUnwrapAmount] = useState(0.00);
   const [tooHigh, setTooHigh] = useState(false);
   const [disableSubmit, setDisableSubmit] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [finished, setFinished] = useState(false);
 
   const { web3, web3auth } = useContext(Web3Context);
 
@@ -76,6 +79,8 @@ const UnwrapTool = () => {
 
   const executeUnwrap = async () => {
 
+    setLoading(true);
+
     const formattedUnwrapAmount = unwrapAmount * 1000000
 
     const userOpData = await makeUnwrapContract(
@@ -100,7 +105,9 @@ const UnwrapTool = () => {
       }}
     )
       .then((res) => {
+        setLoading(false);
         getSFLUVBalance(walletAddress);
+        setFinished(true);
       })
 
   }
@@ -131,8 +138,8 @@ const UnwrapTool = () => {
 
   return (
     <>
-      <div id='unwrapPage' className='pageTemplate'>
-        {walletAddress && <><h1>Unwrap Tokens</h1>
+      {<div id='unwrapPage' className='pageTemplate'>
+        {(walletAddress && (!loading && !finished)) && <><h1>Unwrap Tokens</h1>
         <form onSubmit={(e) => {
           e.preventDefault();
           executeUnwrap();
@@ -154,10 +161,14 @@ const UnwrapTool = () => {
             Submit
           </button>
         </form></>}
-        {!walletAddress && <div style={{paddingTop: '20vh', paddingBottom: '20vh'}}>
+        {(!walletAddress || loading) && <div style={{paddingTop: '20vh', paddingBottom: '20vh'}}>
           <CircleLoader color='#eb6c6c' loading={true}/>
         </div>}
-      </div>
+        {finished && <div style={{paddingTop: '20vh', paddingBottom: '20vh'}}>
+          <AiFillCheckCircle style={{color: '#eb6c6c'}} size='7vh'/>
+          <p>Check wallet to see balance updates</p>
+        </div>}
+      </div>}
     </>
   )
 }
