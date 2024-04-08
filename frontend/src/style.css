@@ -5,6 +5,15 @@ body {
   background-color: rgb(236, 232, 232);
 }
 
+#webpack-dev-server-client-overlay-div {
+  display: none;
+}	
+
+iframe#webpack-dev-server-client-overlay {
+  display: none;
+}
+
+
 .pageTemplate {
   text-align: center;
   margin: 3%;
