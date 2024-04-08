@@ -16,7 +16,7 @@ module.exports = {
     historyApiFallback: true
 
   },
-  mode: 'development',
+  mode: 'production',
   module: {
     rules: [{
       test: /\.(js|jsx)$/,
