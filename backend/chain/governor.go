@@ -8,6 +8,31 @@ import (
 	"github.com/umbracle/ethgo/jsonrpc"
 )
 
+func deployGovernance(rpcUrl, skHex string) (votesAddr, govAddr ethgo.Address, err error) {
+
+	var ec *jsonrpc.Client
+	if ec, err = jsonrpc.NewClient(rpcUrl); err != nil {
+		return
+	}
+
+	var sk *ecdsa.PrivateKey
+	if sk, err = crypto.SKFromHex(skHex); err != nil {
+		return
+	}
+
+	k := &EcdsaKey{SK: sk}
+
+	if _, votesAddr, err = deployContract(ec, "SFLUVVotes.sol/SFLUVVotesV1", k, nil); err != nil {
+		return
+	}
+
+	if _, govAddr, err = deployContract(ec, "SFLUVGovernor.sol/SFLUVGovernorV0", k, []interface{}{votesAddr}); err != nil {
+		return
+	}
+
+	return
+}
+
 type govHelper struct {
 	gov   *contract.Contract
 	votes *contract.Contract
