@@ -20,8 +20,9 @@ func TestDecodeFailure(t *testing.T) {
 	testLen := len(testDec)
 	_ = testLen
 
-	_, err := base64.RawURLEncoding.DecodeString(testDec)
+	testBytes, err := base64.RawURLEncoding.DecodeString(testDec)
 	require.NoError(t, err)
+	println(string(testBytes))
 }
 
 func extractJWKPublicKey(kid string) (pk *ecdsa.PublicKey, err error) {
